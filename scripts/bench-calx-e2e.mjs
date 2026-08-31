@@ -59,6 +59,7 @@ function optionalCommandOutput(command, args, cwd = repoRoot) {
 }
 
 const actualCalcitCommit = commandOutput("git", ["rev-parse", "HEAD"], calcitRoot);
+const actualCalcitDirty = commandOutput("git", ["status", "--porcelain"], calcitRoot).length > 0;
 if (actualCalcitCommit !== pins.calcit.commit) {
   throw new Error(
     `Calcit checkout is ${actualCalcitCommit}, expected ${pins.calcit.commit}; run git submodule update --init --checkout`,
@@ -122,6 +123,12 @@ function runCase(binary, kernel, size) {
   const report = JSON.parse(result.stdout);
   if (report.schema !== "calcit-calx-benchmark/2" || report.correctness !== true) {
     throw new Error(`invalid or unverified benchmark report for ${kernel}/${size}`);
+  }
+  if (
+    report.environment?.calcitGitCommit !== actualCalcitCommit ||
+    report.environment?.calcitGitDirty !== actualCalcitDirty
+  ) {
+    throw new Error(`benchmark report has stale Calcit source identity for ${kernel}/${size}`);
   }
   const cachedNativeMetrics = [
     report.runtime?.cachedNativeResolutionNs,
@@ -269,7 +276,7 @@ const report = {
     harnessGitCommit: optionalCommandOutput("git", ["rev-parse", "HEAD"]) ?? "unborn",
     harnessGitDirty: commandOutput("git", ["status", "--porcelain"]).length > 0,
     calcitGitCommit: actualCalcitCommit,
-    calcitGitDirty: commandOutput("git", ["status", "--porcelain"], calcitRoot).length > 0,
+    calcitGitDirty: actualCalcitDirty,
     calcitSource: pins.calcit.repository,
     workloadRevision: actualCalcitCommit,
     workloadSha256,

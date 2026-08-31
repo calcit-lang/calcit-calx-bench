@@ -3,6 +3,7 @@ name = "calcit-calx-bench-runner"
 version = "0.1.0"
 edition = "2024"
 publish = false
+build = "build.rs"
 
 [[bin]]
 name = "calcit-calx-bench"

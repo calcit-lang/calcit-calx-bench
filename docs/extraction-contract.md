@@ -147,9 +147,9 @@ embedding API。harness 固定 Calcit commit/tag，升级 pin 前运行 compile 
 The phase-two bootstrap is accepted only when the standalone harness builds
 against the final merged Calcit revision, passes all five runner tests and eight
 Node tests, emits a schema-v2 quick report with raw samples, and links its
-README/AGENTS status and boundaries back to #547/#558. Only then may #559 remove
+README/AGENTS status and boundaries back to `#547/#558`. Only then may #559 remove
 the core binary and policy checks.
 
 第二阶段只有在独立 harness 固定已合入的最终 Calcit revision、通过 5 项 runner tests 与 8 项
 Node tests、输出保留 raw samples 的 schema-v2 quick report，并在 README/AGENTS 回链
-#547/#558 后才通过验收；之后 #559 才能删除 core binary 和 policy checks。
+`#547/#558` 后才通过验收；之后 #559 才能删除 core binary 和 policy checks。

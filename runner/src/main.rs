@@ -152,6 +152,8 @@ struct Args {
 #[serde(rename_all = "camelCase")]
 struct EnvironmentReport {
     package_version: &'static str,
+    calcit_git_commit: &'static str,
+    calcit_git_dirty: bool,
     calx_vm_version: String,
     profile: &'static str,
     os: &'static str,
@@ -331,9 +333,17 @@ fn nanos(duration: Duration) -> u64 {
     u64::try_from(duration.as_nanos()).unwrap_or(u64::MAX)
 }
 
+/// Build provenance that remains complete when the runner is invoked without Node orchestration.
 fn environment_report() -> Result<EnvironmentReport, String> {
+    let calcit_git_dirty = match env!("CALX_BENCH_CALCIT_GIT_DIRTY") {
+        "true" => true,
+        "false" => false,
+        value => return Err(format!("invalid build-time Calcit dirty state `{value}`")),
+    };
     Ok(EnvironmentReport {
         package_version: calcit::cli_args::CALCIT_VERSION,
+        calcit_git_commit: env!("CALX_BENCH_CALCIT_GIT_COMMIT"),
+        calcit_git_dirty,
         calx_vm_version: resolved_dependency_version(CARGO_LOCK, "calx_vm")?.to_owned(),
         profile: if cfg!(debug_assertions) {
             "debug"
@@ -956,11 +966,25 @@ mod tests {
             .expect("one resolved calx_vm package");
         assert_eq!(version.split('.').count(), 3);
         assert!(version.split('.').all(|part| part.parse::<u64>().is_ok()));
+        let environment = environment_report().expect("benchmark environment");
         assert_eq!(
-            environment_report()
-                .expect("benchmark environment")
-                .package_version,
+            environment.package_version,
             calcit::cli_args::CALCIT_VERSION
+        );
+        assert_eq!(
+            environment.calcit_git_commit,
+            env!("CALX_BENCH_CALCIT_GIT_COMMIT")
+        );
+        assert_eq!(environment.calcit_git_commit.len(), 40);
+        assert!(
+            environment
+                .calcit_git_commit
+                .chars()
+                .all(|value| value.is_ascii_hexdigit())
+        );
+        assert_eq!(
+            environment.calcit_git_dirty,
+            env!("CALX_BENCH_CALCIT_GIT_DIRTY") == "true"
         );
     }
 
