@@ -1,0 +1,1 @@
+benchmarks/calx/*.json -diff linguist-generated
