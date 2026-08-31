@@ -5,8 +5,11 @@ import {
   verifyPins,
   verifyResolvedVersion,
   verifyRunnerBoundary,
+  verifySubmoduleInitialized,
   verifyWorkload,
 } from "./check-pins.mjs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -21,6 +24,17 @@ test("the repository pins exact Calcit and calx-vm revisions", () => {
   assert.equal(pins.runner.adapterStatus, "active-internal-revision-pinned");
   assert.equal(pins.runner.adapterEdition, "calcit-calx-benchmark-session/1");
   assert.match(pins.workload.sha256, /^[0-9a-f]{64}$/u);
+});
+
+test("pin validation rejects an uninitialized submodule before reading the parent repository", () => {
+  const calcitRoot = mkdtempSync(path.join(tmpdir(), "calcit-uninitialized-"));
+  try {
+    assert.throws(() => verifySubmoduleInitialized(calcitRoot), /submodule is not initialized/u);
+    writeFileSync(path.join(calcitRoot, ".git"), "gitdir: placeholder\n");
+    assert.doesNotThrow(() => verifySubmoduleInitialized(calcitRoot));
+  } finally {
+    rmSync(calcitRoot, { recursive: true, force: true });
+  }
 });
 
 test("resolved dependency validation rejects missing, duplicate, and wrong versions", () => {
