@@ -1,0 +1,13 @@
+{
+  "name": "calcit-calx-bench",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "check-pins": "node scripts/check-pins.mjs",
+    "test": "node --test scripts/bench-calx-settings.test.mjs scripts/check-pins.test.mjs",
+    "bench": "node scripts/bench-calx-e2e.mjs",
+    "bench:quick": "CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 node scripts/bench-calx-e2e.mjs"
+  },
+  "packageManager": "yarn@4.10.3"
+}

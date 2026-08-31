@@ -1,0 +1,15 @@
+{
+  "schema": "calcit-calx-bench-pins/1",
+  "calcit": {
+    "repository": "https://github.com/calcit-lang/calcit",
+    "commit": "8bf2a92e34bbc414c58cc8d44d139ff525a4f2dc"
+  },
+  "calxVm": {
+    "source": "vendor/calcit/Cargo.lock",
+    "expectedVersion": "0.3.0"
+  },
+  "runner": {
+    "ownership": "transitional-pinned-calcit-binary",
+    "adapterStatus": "blocked-until-revision-pinned-session-adapter-exists"
+  }
+}

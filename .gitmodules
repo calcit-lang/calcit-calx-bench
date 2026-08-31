@@ -1,0 +1,3 @@
+[submodule "vendor/calcit"]
+	path = vendor/calcit
+	url = https://github.com/calcit-lang/calcit.git

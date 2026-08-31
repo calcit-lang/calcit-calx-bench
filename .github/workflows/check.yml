@@ -1,0 +1,29 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+permissions:
+  contents: read
+
+jobs:
+  harness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: vendor/calcit
+      - run: corepack enable
+      - run: yarn test
+      - run: yarn check-pins
+      - run: cargo test --manifest-path vendor/calcit/Cargo.toml --bin calcit-calx-bench
+      - run: CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench
