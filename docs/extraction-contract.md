@@ -124,13 +124,15 @@ handle 解析 cached Calcit callable 和 measured Calx kernel、执行预先准�
 
 This adapter is an **internal benchmark API**. It has no semver compatibility
 promise and must not become a general embedding API by accident. The harness
-pins a Calcit commit/tag, upgrades deliberately, and runs its compile and
-quick-smoke matrix before changing the pin. Mutable-global access, implicit
+pins a Calcit commit/tag and upgrades deliberately. Every Calcit-pin or adapter-edition
+change must pass the runner compile, all Rust/Node tests, pin checks, debug/release
+quick smoke, and the full matrix. Mutable-global access, implicit
 source installation, automatic fallback after effects, and benchmark policy
 inside core are forbidden.
 
 该 adapter 是 **internal benchmark API**，不承诺 semver 兼容，也不能意外扩张成通用
-embedding API。harness 固定 Calcit commit/tag，升级 pin 前运行 compile 与 quick-smoke matrix。
+embedding API。harness 固定 Calcit commit/tag；每次修改 Calcit pin 或 adapter edition 都必须通过
+runner compile、全部 Rust/Node tests、pin checks、debug/release quick smoke 与 full matrix。
 禁止暴露可变全局、隐式安装源码、effect 后自动 fallback，以及把 benchmark policy 放回 core。
 
 ## Test and smoke migration matrix / 测试与 smoke 迁移矩阵
@@ -148,13 +150,13 @@ embedding API。harness 固定 Calcit commit/tag，升级 pin 前运行 compile 
 | full debug/release matrix | manual/versioned evidence workflow | not a correctness gate |
 
 The phase-two bootstrap met its acceptance gate: the standalone harness builds
-against the final merged Calcit revision, passes all six runner tests and eight
+against the final merged Calcit revision, passes all six runner tests and nine
 Node tests, emits schema-v2 reports with raw samples, links its README/AGENTS
 boundaries back to `#547/#558`, passes dual-platform CI, and completes the
 182-sample clean-state matrix. Issue #559 therefore removed the duplicate core
 binary and policy checks.
 
 第二阶段已通过验收：独立 harness 固定已合入的最终 Calcit revision，通过 6 项 runner tests 与
-8 项 Node tests，输出保留 raw samples 的 schema-v2 report，在 README/AGENTS 回链
+9 项 Node tests，输出保留 raw samples 的 schema-v2 report，在 README/AGENTS 回链
 `#547`/`#558`，通过双平台 CI，并完成 clean-state 182-sample matrix。因此 `#559` 已删除
 core 中重复的 binary 和 policy checks。

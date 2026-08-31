@@ -11,10 +11,13 @@
   machine-specific absolute CI thresholds.
 - Keep Issue/PR titles, bodies and progress updates bilingual.
 - Before each commit, add a timestamped note under `editing-history/`.
-- Validate with `yarn test`, `yarn check-pins`, and the quick benchmark smoke when runner
-  ownership or orchestration changes.
+- Calcit-pin or adapter-edition changes require runner compile, all Rust/Node tests,
+  `yarn check-pins`, debug/release quick smoke, and the full matrix. Runner ownership or
+  orchestration changes require the same sequence when they affect measurement behavior.
 
 本仓库只维护实验性 benchmark/research 工具。禁止复制 compiler mutable globals；Rust
-runner 只消费固定 revision 的 session adapter，修改 edition 或 Calcit pin 必须重跑完整验证。
+runner 只消费固定 revision 的 session adapter；修改 edition 或 Calcit pin 必须通过 runner compile、
+全部 Rust/Node tests、pin checks、debug/release quick smoke 与 full matrix。影响测量行为的 ownership
+或 orchestration 改动执行同一验证序列。
 报告保留 raw samples 和 schema，不改写历史
 归档，不把机器绝对阈值写入普通 CI。

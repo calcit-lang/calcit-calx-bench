@@ -11,8 +11,9 @@ The runner in [`runner/`](runner/) consumes only the internal
 `CalxBenchmarkSession` adapter compiled from the exact Calcit submodule commit in
 [`pins.json`](pins.json). It does not access compiler globals, mutable registries, or
 undeclared preprocessing/runtime functions. The adapter deliberately has no semver
-compatibility promise: every pin upgrade must pass the runner tests, pin checks, and
-debug/release quick smoke before measurement results are accepted.
+compatibility promise. Every Calcit-pin or adapter-edition change must pass the runner
+compile, all Rust/Node tests, pin checks, debug/release quick smoke, and the full matrix
+before measurement results are accepted.
 GitHub Actions runs that correctness-gated smoke on both Ubuntu and macOS. Reports
 record the exact workload revision and pinned source-fixture SHA-256.
 
@@ -42,8 +43,9 @@ contracts. Calx lowering, cache/runtime semantics, and correctness remain in cor
 
 [`runner/`](runner/) 只消费 [`pins.json`](pins.json) 所固定 Calcit submodule revision 编译出的
 internal `CalxBenchmarkSession` adapter，不直接访问 compiler globals、mutable registries 或未声明的
-preprocess/runtime 函数。adapter 不承诺 semver 兼容；每次升级 pin 都必须通过 runner tests、pin
-检查和 debug/release quick smoke，才能接受新的测量结果。
+preprocess/runtime 函数。adapter 不承诺 semver 兼容；每次修改 Calcit pin 或 adapter edition 都必须
+通过 runner compile、全部 Rust/Node tests、pin checks、debug/release quick smoke 与 full matrix，
+才能接受新的测量结果。
 GitHub Actions 在 Ubuntu 与 macOS 上运行该 correctness-gated smoke；报告显式记录 workload
 revision 与固定 source fixture SHA-256。
 
