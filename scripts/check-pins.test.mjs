@@ -19,6 +19,7 @@ test("the repository pins exact Calcit and calx-vm revisions", () => {
   assert.equal(pins.calxVm.source, "runner/Cargo.lock");
   assert.equal(pins.runner.ownership, "standalone-revision-pinned-runner");
   assert.equal(pins.runner.adapterStatus, "active-internal-revision-pinned");
+  assert.equal(pins.runner.adapterEdition, "calcit-calx-benchmark-session/1");
   assert.match(pins.workload.sha256, /^[0-9a-f]{64}$/u);
 });
 
@@ -35,7 +36,7 @@ test("resolved dependency validation rejects missing, duplicate, and wrong versi
 });
 
 test("runner boundary requires the adapter and rejects compiler internals", () => {
-  const valid = "use calcit::codegen::calx::benchmark::CalxBenchmarkSession;";
+  const valid = "use calcit::codegen::calx::benchmark_session::CalxBenchmarkSession;";
   assert.doesNotThrow(() => verifyRunnerBoundary(valid));
   assert.throws(() => verifyRunnerBoundary("use calcit::Calcit;"), /benchmark adapter/u);
   assert.throws(() => verifyRunnerBoundary(`${valid}\nrun_fn(args);`), /compiler internal token run_fn/u);

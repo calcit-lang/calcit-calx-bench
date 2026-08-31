@@ -36,7 +36,7 @@
   ],
   "stayInCore": [
     "src/codegen/calx.rs",
-    "src/codegen/calx/benchmark.rs",
+    "src/codegen/calx/benchmark_session.rs",
     "src/codegen/calx/lowering.rs",
     "src/program/tests.rs",
     "tests/fixtures/calx/scalar-kernels.cirru",
@@ -58,9 +58,10 @@
   },
   "ciPlatforms": ["ubuntu-latest", "macos-latest"],
   "adapter": {
-    "implementation": "vendor/calcit/src/codegen/calx/benchmark.rs",
+    "implementation": "vendor/calcit/src/codegen/calx/benchmark_session.rs",
     "consumer": "runner/src/main.rs",
     "status": "active-internal-revision-pinned",
+    "edition": "calcit-calx-benchmark-session/1",
     "requiredOperations": [
       "install-explicit-source-corpus",
       "preprocess-to-immutable-program-handle",
@@ -78,7 +79,7 @@
     ]
   },
   "migrationTests": {
-    "rust": 5,
+    "rust": 6,
     "node": 8,
     "quickSmoke": "CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench",
     "fullMatrix": "yarn bench"

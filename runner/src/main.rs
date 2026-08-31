@@ -1,21 +1,23 @@
 //! Reproducible single-process measurement for one Calcit-to-Calx scalar case.
 //!
-//! The orchestration script runs this binary in fresh processes to measure
-//! process-level cold cost without mixing benchmark policy into the compiler.
+//! This standalone runner consumes only the internal session adapter from an
+//! exactly pinned Calcit revision. The orchestration script runs it in fresh
+//! processes without moving benchmark policy back into the compiler.
 
 use std::alloc::{GlobalAlloc, Layout, System};
+use std::collections::HashSet;
 use std::hint::black_box;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-use std::sync::{Mutex, MutexGuard};
+use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::{Duration, Instant};
 
 use argh::FromArgs;
 use calcit::Calcit;
-use calcit::codegen::calx::benchmark::{
-    CalxBenchmarkCorpus, CalxBenchmarkDefinition, CalxBenchmarkReturn, CalxBenchmarkSession,
-    CalxBenchmarkSessionPreparation,
+use calcit::calcit::{CalcitFnTypeAnnotation, CalcitTypeAnnotation, SchemaKind};
+use calcit::codegen::calx::benchmark_session::{
+    CalxBenchmarkCorpus, CalxBenchmarkDefinition, CalxBenchmarkSession,
 };
-use calcit::codegen::calx::{CalxCompileCache, CalxHostImports, CalxScalarType};
+use calcit::codegen::calx::{CalxCompileCache, CalxHostImports};
 use serde::Serialize;
 
 const FIXTURE_NAMESPACE: &str = "bench.calx-kernels";
@@ -386,7 +388,22 @@ fn resolved_dependency_version<'a>(
     }
 }
 
-/// Declare the fixed source corpus and every concrete scalar function schema.
+/// Build the fixed Number-only function schema for one benchmark definition.
+fn number_fn_schema(arity: usize) -> Arc<CalcitTypeAnnotation> {
+    Arc::new(CalcitTypeAnnotation::Fn(Arc::new(CalcitFnTypeAnnotation {
+        generics: Arc::new(vec![]),
+        where_bounds: Arc::new(vec![]),
+        arg_types: (0..arity)
+            .map(|_| Arc::new(CalcitTypeAnnotation::Number))
+            .collect(),
+        return_type: Arc::new(CalcitTypeAnnotation::Number),
+        fn_kind: SchemaKind::Fn,
+        rest_type: None,
+        features: Arc::new(HashSet::new()),
+    })))
+}
+
+/// Declare the complete source-backed scalar corpus and fixed schemas.
 fn benchmark_corpus() -> Result<CalxBenchmarkCorpus, String> {
     let definitions = [
         ("range-sum", 2),
@@ -397,26 +414,17 @@ fn benchmark_corpus() -> Result<CalxBenchmarkCorpus, String> {
         ("bounded-simulation", 3),
     ]
     .into_iter()
-    .map(|(name, arity)| {
-        CalxBenchmarkDefinition::new(
-            name,
-            vec![CalxScalarType::F64; arity],
-            CalxBenchmarkReturn::Scalar(CalxScalarType::F64),
-        )
-    })
-    .collect::<Result<Vec<_>, _>>()
-    .map_err(|error| error.to_string())?;
+    .map(|(name, arity)| CalxBenchmarkDefinition::new(name, number_fn_schema(arity)));
     CalxBenchmarkCorpus::new(
         FIXTURE_NAMESPACE,
         include_str!("../../fixtures/scalar-kernels.cirru"),
         definitions,
     )
-    .map_err(|error| error.to_string())
 }
 
-/// Install and preprocess the explicit corpus through the internal adapter.
-fn prepare_benchmark_session() -> Result<CalxBenchmarkSessionPreparation, String> {
-    CalxBenchmarkSession::prepare(benchmark_corpus()?).map_err(|error| error.to_string())
+/// Create the only mutable setup phase, then retain the immutable pinned session.
+fn prepare_session(kernel: &str) -> Result<CalxBenchmarkSession, String> {
+    CalxBenchmarkSession::prepare(&benchmark_corpus()?, kernel)
 }
 
 /// Map a named corpus case and its input size to concrete Calcit arguments.
@@ -507,16 +515,17 @@ fn measure_compile_profile(args: &Args) -> Result<CompileProfileReport, String> 
         return Err("--compile-profile-allocation-iterations must be greater than zero in compile profile mode".to_owned());
     }
 
-    let (session, session_timings) = prepare_benchmark_session()?.into_parts();
+    let session = prepare_session(&args.kernel)?;
+    let session_timings = session.timings();
     let fixture_install_ns = nanos(session_timings.source_install);
-    let calcit_frontend_ns = nanos(session_timings.preprocess);
-    let snapshot_clone_ns = nanos(session_timings.snapshot_clone);
+    let calcit_frontend_ns = nanos(session_timings.frontend);
+    let snapshot_clone_ns = nanos(session_timings.program_snapshot);
     let imports = CalxHostImports::new();
 
     for _ in 0..args.compile_profile_warmup {
         black_box(
             session
-                .compile_calx(args.kernel.as_str(), &imports)
+                .compile_calx(&imports)
                 .map_err(|error| error.to_string())?,
         );
     }
@@ -524,7 +533,7 @@ fn measure_compile_profile(args: &Args) -> Result<CompileProfileReport, String> 
     let mut stage_timing_total = CompileReport::default();
     for _ in 0..args.compile_profile_stage_iterations {
         let (kernel, timings) = session
-            .compile_calx_measured(args.kernel.as_str(), &imports)
+            .compile_calx_measured(&imports)
             .map_err(|error| error.to_string())?;
         add_compile_timings(&mut stage_timing_total, timings);
         black_box(kernel);
@@ -537,7 +546,7 @@ fn measure_compile_profile(args: &Args) -> Result<CompileProfileReport, String> 
         for _ in 0..args.compile_profile_allocation_iterations {
             black_box(
                 session
-                    .compile_calx(args.kernel.as_str(), &imports)
+                    .compile_calx(&imports)
                     .map_err(|error| error.to_string())?,
             );
         }
@@ -552,7 +561,7 @@ fn measure_compile_profile(args: &Args) -> Result<CompileProfileReport, String> 
     for _ in 0..args.compile_profile_iterations {
         black_box(
             session
-                .compile_calx(args.kernel.as_str(), &imports)
+                .compile_calx(&imports)
                 .map_err(|error| error.to_string())?,
         );
     }
@@ -588,15 +597,16 @@ fn measure_cache_profile(args: &Args) -> Result<CacheProfileReport, String> {
         );
     }
 
-    let (session, session_timings) = prepare_benchmark_session()?.into_parts();
+    let session = prepare_session(&args.kernel)?;
+    let session_timings = session.timings();
     let fixture_install_ns = nanos(session_timings.source_install);
-    let calcit_frontend_ns = nanos(session_timings.preprocess);
-    let snapshot_clone_ns = nanos(session_timings.snapshot_clone);
+    let calcit_frontend_ns = nanos(session_timings.frontend);
+    let snapshot_clone_ns = nanos(session_timings.program_snapshot);
     let imports = CalxHostImports::new();
     let mut cache = CalxCompileCache::new(1);
     let initial_started = Instant::now();
     let initial = session
-        .prepare_calx_cache(&mut cache, args.kernel.as_str(), &imports)
+        .prepare_cached_calx(&mut cache, &imports)
         .map_err(|error| error.to_string())?;
     let initial_miss_prepare_ns = nanos(initial_started.elapsed());
     let initial_miss_reason = initial
@@ -611,37 +621,21 @@ fn measure_cache_profile(args: &Args) -> Result<CacheProfileReport, String> {
     );
     let initial_kernel = initial.into_kernel();
     let calcit_args = kernel_arguments(&args.kernel, args.size)?;
-    let vm_args = session
-        .prepare_calx_arguments(args.kernel.as_str(), &initial_kernel, &calcit_args)
-        .map_err(|error| error.to_string())?;
+    let vm_args = CalxBenchmarkSession::encode_calx_arguments(&initial_kernel, &calcit_args)?;
 
-    let native_result = session
-        .run_calcit_lookup(args.kernel.as_str(), &calcit_args)
-        .map_err(|error| error.to_string())?;
-    let cached_native_callable = session
-        .resolve_calcit_callable(args.kernel.as_str())
-        .map_err(|error| error.to_string())?;
+    let native_result = session.run_calcit_lookup(&calcit_args)?;
 
     for _ in 0..args.cache_profile_warmup {
         let preparation = session
-            .prepare_calx_cache(&mut cache, args.kernel.as_str(), &imports)
+            .prepare_cached_calx(&mut cache, &imports)
             .map_err(|error| error.to_string())?;
         if !preparation.report().cache_hit {
             return Err("cache profile warmup unexpectedly missed".to_owned());
         }
-        let mut vm = preparation
-            .kernel()
-            .instantiate()
+        let mut vm = CalxBenchmarkSession::instantiate_calx(preparation.kernel())
             .map_err(|error| error.to_string())?;
-        black_box(
-            vm.run_typed(vm_args.clone())
-                .map_err(|error| error.to_string())?,
-        );
-        black_box(
-            cached_native_callable
-                .run(&calcit_args)
-                .map_err(|error| error.to_string())?,
-        );
+        black_box(vm.run_values(vm_args.clone())?);
+        black_box(session.run_calcit_cached(&calcit_args)?);
     }
 
     let mut hit_prepare_total_ns = 0u64;
@@ -653,7 +647,7 @@ fn measure_cache_profile(args: &Args) -> Result<CacheProfileReport, String> {
     for _ in 0..args.cache_profile_iterations {
         let prepare_started = Instant::now();
         let preparation = session
-            .prepare_calx_cache(&mut cache, args.kernel.as_str(), &imports)
+            .prepare_cached_calx(&mut cache, &imports)
             .map_err(|error| error.to_string())?;
         hit_prepare_total_ns =
             hit_prepare_total_ns.saturating_add(nanos(prepare_started.elapsed()));
@@ -666,57 +660,39 @@ fn measure_cache_profile(args: &Args) -> Result<CacheProfileReport, String> {
             .saturating_add(nanos(preparation.report().binding_attachment));
 
         let setup_started = Instant::now();
-        let mut vm = preparation
-            .kernel()
-            .instantiate()
+        let mut vm = CalxBenchmarkSession::instantiate_calx(preparation.kernel())
             .map_err(|error| error.to_string())?;
         fresh_vm_setup_total_ns =
             fresh_vm_setup_total_ns.saturating_add(nanos(setup_started.elapsed()));
         let execution_started = Instant::now();
-        let result = vm
-            .run_typed(vm_args.clone())
-            .map_err(|error| error.to_string())?;
+        let result = vm.run_values(vm_args.clone())?;
         fresh_vm_execution_total_ns =
             fresh_vm_execution_total_ns.saturating_add(nanos(execution_started.elapsed()));
-        last_fresh_result = Some(
-            session
-                .finish_calx_result(args.kernel.as_str(), preparation.kernel(), result)
-                .map_err(|error| error.to_string())?,
-        );
+        last_fresh_result = Some(CalxBenchmarkSession::decode_calx_result(
+            preparation.kernel(),
+            result,
+        )?);
     }
 
-    let mut reused_vm = initial_kernel
-        .instantiate()
+    let mut reused_vm = CalxBenchmarkSession::instantiate_calx(&initial_kernel)
         .map_err(|error| error.to_string())?;
     for _ in 0..args.cache_profile_warmup {
-        black_box(
-            reused_vm
-                .run_typed(vm_args.clone())
-                .map_err(|error| error.to_string())?,
-        );
+        black_box(reused_vm.run_values(vm_args.clone())?);
     }
     let reused_started = Instant::now();
-    let mut last_reused_result = None;
+    let mut last_reused_raw_result = None;
     for _ in 0..args.cache_profile_iterations {
-        let result = reused_vm
-            .run_typed(vm_args.clone())
-            .map_err(|error| error.to_string())?;
-        last_reused_result = Some(
-            session
-                .finish_calx_result(args.kernel.as_str(), &initial_kernel, result)
-                .map_err(|error| error.to_string())?,
-        );
+        last_reused_raw_result = Some(reused_vm.run_values(vm_args.clone())?);
     }
     let reused_vm_execution_total_ns = nanos(reused_started.elapsed());
+    let last_reused_result = last_reused_raw_result
+        .map(|result| CalxBenchmarkSession::decode_calx_result(&initial_kernel, result))
+        .transpose()?;
 
     let cached_native_started = Instant::now();
     let mut last_cached_native_result = None;
     for _ in 0..args.cache_profile_iterations {
-        last_cached_native_result = Some(
-            cached_native_callable
-                .run(&calcit_args)
-                .map_err(|error| error.to_string())?,
-        );
+        last_cached_native_result = Some(session.run_calcit_cached(&calcit_args)?);
     }
     let cached_native_execution_total_ns = nanos(cached_native_started.elapsed());
 
@@ -782,30 +758,23 @@ fn measure(args: &Args) -> Result<BenchmarkReport, String> {
         return Err("--hot-iterations must be greater than zero".to_owned());
     }
 
-    let (session, session_timings) = prepare_benchmark_session()?.into_parts();
+    let session = prepare_session(&args.kernel)?;
+    let session_timings = session.timings();
     let fixture_install_ns = nanos(session_timings.source_install);
-    let calcit_frontend_ns = nanos(session_timings.preprocess);
-    let snapshot_clone_ns = nanos(session_timings.snapshot_clone);
-    let imports = CalxHostImports::new();
+    let calcit_frontend_ns = nanos(session_timings.frontend);
+    let snapshot_clone_ns = nanos(session_timings.program_snapshot);
+
     let (kernel, compile_timings) = session
-        .compile_calx_measured(args.kernel.as_str(), &imports)
+        .compile_calx_measured(&CalxHostImports::new())
         .map_err(|error| error.to_string())?;
     let calcit_args = kernel_arguments(&args.kernel, args.size)?;
 
     let native_started = Instant::now();
-    let native_result = session
-        .run_calcit_lookup(args.kernel.as_str(), &calcit_args)
-        .map_err(|error| error.to_string())?;
+    let native_result = session.run_calcit_lookup(&calcit_args)?;
     let native_call_ns = nanos(native_started.elapsed());
 
-    let cached_native_resolution_started = Instant::now();
-    let cached_native_callable = session
-        .resolve_calcit_callable(args.kernel.as_str())
-        .map_err(|error| error.to_string())?;
-    let cached_native_resolution_ns = nanos(cached_native_resolution_started.elapsed());
-    let cached_native_result = cached_native_callable
-        .run(&calcit_args)
-        .map_err(|error| error.to_string())?;
+    let cached_native_resolution_ns = nanos(session_timings.cached_calcit_resolution);
+    let cached_native_result = session.run_calcit_cached(&calcit_args)?;
     if cached_native_result != native_result {
         return Err(format!(
             "correctness mismatch for {}/{}: Calcit lookup={native_result}, Calcit cached={cached_native_result}",
@@ -814,22 +783,14 @@ fn measure(args: &Args) -> Result<BenchmarkReport, String> {
     }
 
     for _ in 0..args.vm_warmup {
-        black_box(
-            cached_native_callable
-                .run(&calcit_args)
-                .map_err(|error| error.to_string())?,
-        );
+        black_box(session.run_calcit_cached(&calcit_args)?);
     }
     let cached_native_inputs = (0..args.hot_iterations)
         .map(|_| calcit_args.clone())
         .collect::<Vec<_>>();
     let cached_native_started = Instant::now();
     for input in cached_native_inputs {
-        black_box(
-            cached_native_callable
-                .run(&input)
-                .map_err(|error| error.to_string())?,
-        );
+        black_box(session.run_calcit_cached(&input)?);
     }
     let cached_native_execution_total_ns = nanos(cached_native_started.elapsed());
     let cached_native_execution_per_call_ns =
@@ -837,26 +798,21 @@ fn measure(args: &Args) -> Result<BenchmarkReport, String> {
 
     let calx_one_shot_started = Instant::now();
     let boundary_arguments_started = Instant::now();
-    let vm_args = session
-        .prepare_calx_arguments(args.kernel.as_str(), &kernel, &calcit_args)
-        .map_err(|error| error.to_string())?;
+    let vm_args = CalxBenchmarkSession::encode_calx_arguments(&kernel, &calcit_args)?;
     let boundary_arguments_ns = nanos(boundary_arguments_started.elapsed());
 
     let setup_started = Instant::now();
-    let mut vm = kernel.instantiate().map_err(|error| error.to_string())?;
+    let mut vm =
+        CalxBenchmarkSession::instantiate_calx(&kernel).map_err(|error| error.to_string())?;
     let vm_setup_ns = nanos(setup_started.elapsed());
 
     let one_shot_input = vm_args.clone();
     let execution_started = Instant::now();
-    let vm_result = vm
-        .run_typed(one_shot_input)
-        .map_err(|error| error.to_string())?;
+    let vm_result = vm.run_values(one_shot_input)?;
     let pure_execution_ns = nanos(execution_started.elapsed());
 
     let result_boundary_started = Instant::now();
-    let calx_result = session
-        .finish_calx_result(args.kernel.as_str(), &kernel, vm_result)
-        .map_err(|error| error.to_string())?;
+    let calx_result = CalxBenchmarkSession::decode_calx_result(&kernel, vm_result)?;
     let boundary_result_ns = nanos(result_boundary_started.elapsed());
     let calx_one_shot_ns = nanos(calx_one_shot_started.elapsed());
     if calx_result != native_result {
@@ -866,27 +822,22 @@ fn measure(args: &Args) -> Result<BenchmarkReport, String> {
         ));
     }
 
-    let mut hot_vm = kernel.instantiate().map_err(|error| error.to_string())?;
+    let mut hot_vm =
+        CalxBenchmarkSession::instantiate_calx(&kernel).map_err(|error| error.to_string())?;
     for _ in 0..args.vm_warmup {
-        black_box(
-            hot_vm
-                .run_typed(vm_args.clone())
-                .map_err(|error| error.to_string())?,
-        );
+        black_box(hot_vm.run_values(vm_args.clone())?);
     }
     let hot_inputs = (0..args.hot_iterations)
         .map(|_| vm_args.clone())
         .collect::<Vec<_>>();
     let hot_started = Instant::now();
     for input in hot_inputs {
-        black_box(hot_vm.run_typed(input).map_err(|error| error.to_string())?);
+        black_box(hot_vm.run_values(input)?);
     }
     let hot_execution_total_ns = nanos(hot_started.elapsed());
     let hot_execution_per_call_ns = hot_execution_total_ns / u64::from(args.hot_iterations);
 
-    let program_counts = session
-        .program_counts(args.kernel.as_str(), &kernel)
-        .map_err(|error| error.to_string())?;
+    let counts = CalxBenchmarkSession::program_counts(&kernel);
 
     Ok(BenchmarkReport {
         schema: "calcit-calx-benchmark/2",
@@ -920,11 +871,11 @@ fn measure(args: &Args) -> Result<BenchmarkReport, String> {
             hot_execution_per_call_ns,
         },
         program: ProgramReport {
-            functions: program_counts.functions,
-            imports: program_counts.imports,
-            syntax_nodes: program_counts.syntax_nodes,
-            instructions: program_counts.instructions,
-            diagnostic_bytes: program_counts.diagnostic_bytes,
+            functions: counts.functions,
+            imports: counts.imports,
+            syntax_nodes: counts.syntax_nodes,
+            instructions: counts.instructions,
+            diagnostic_bytes: counts.diagnostic_bytes,
             host_boundary_calls_per_execution: 0,
             reuses_vm_frames_and_stack: true,
         },
@@ -986,6 +937,24 @@ mod tests {
             environment.calcit_git_dirty,
             env!("CALX_BENCH_CALCIT_GIT_DIRTY") == "true"
         );
+        let serialized =
+            serde_json::to_value(&environment).expect("serialize benchmark environment");
+        assert_eq!(
+            serialized["calcitGitCommit"],
+            env!("CALX_BENCH_CALCIT_GIT_COMMIT")
+        );
+        assert_eq!(
+            serialized["calcitGitDirty"],
+            env!("CALX_BENCH_CALCIT_GIT_DIRTY") == "true"
+        );
+    }
+
+    #[test]
+    fn pinned_adapter_edition_matches_the_harness_contract() {
+        assert_eq!(
+            calcit::codegen::calx::benchmark_session::CALX_BENCHMARK_SESSION_EDITION,
+            "calcit-calx-benchmark-session/1"
+        );
     }
 
     #[test]
@@ -997,24 +966,22 @@ mod tests {
 
     #[test]
     fn cached_callable_matches_lookup_execution_and_rejects_missing_entries() {
-        let session = prepare_benchmark_session()
-            .expect("prepare benchmark session")
-            .into_session();
         let args = kernel_arguments("range-sum", 10).expect("range-sum arguments");
-        let lookup_result = session
-            .run_calcit_lookup("range-sum", &args)
-            .expect("run lookup baseline");
-        let callable = session
-            .resolve_calcit_callable("range-sum")
-            .expect("resolve cached callable");
-        let cached_result = callable.run(&args).expect("run cached callable");
-        assert_eq!(cached_result, lookup_result);
+        {
+            let session = prepare_session("range-sum").expect("prepare benchmark session");
+            let lookup_result = session
+                .run_calcit_lookup(&args)
+                .expect("run lookup baseline");
+            let cached_result = session
+                .run_calcit_cached(&args)
+                .expect("run cached callable");
+            assert_eq!(cached_result, lookup_result);
+        }
 
-        let error = session
-            .resolve_calcit_callable("missing-kernel")
+        let error = prepare_session("missing-kernel")
             .err()
             .expect("missing entries must fail");
-        assert!(error.to_string().contains("missing-kernel"));
+        assert!(error.contains("missing-kernel"));
     }
 
     #[test]

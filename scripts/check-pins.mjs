@@ -36,7 +36,7 @@ const FORBIDDEN_RUNNER_TOKENS = [
 ];
 
 export function verifyRunnerBoundary(source) {
-  if (!source.includes("calcit::codegen::calx::benchmark")) {
+  if (!source.includes("calcit::codegen::calx::benchmark_session")) {
     throw new Error("standalone runner must consume the Calcit benchmark adapter");
   }
   if (!source.includes("CalxBenchmarkSession")) {
@@ -75,6 +75,9 @@ export function verifyPins(repoRoot) {
     "calx_vm",
     pins.calxVm.expectedVersion,
   );
+  if (pins.runner.adapterEdition !== "calcit-calx-benchmark-session/1") {
+    throw new Error(`unsupported Calx benchmark adapter edition: ${pins.runner.adapterEdition}`);
+  }
   readFileSync(path.join(repoRoot, pins.runner.manifest), "utf8");
   verifyRunnerBoundary(readFileSync(path.join(repoRoot, pins.runner.source), "utf8"));
   const standaloneFixture = readFileSync(path.join(repoRoot, pins.workload.path));

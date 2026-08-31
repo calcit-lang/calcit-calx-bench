@@ -29,9 +29,9 @@ reviewed immutable measurements may then be added under `benchmarks/calx/`. Rati
 crossover points are informational and never become machine-specific correctness gates.
 
 Calcit core cutover remains a separate step tracked by
-[calcit#559](https://github.com/calcit-lang/calcit/issues/559). It may start only after
-the adapter lands on Calcit `main`, this repository pins that final revision, and the
-standalone quick smoke reproduces the schema-v2 scalar suite.
+[calcit#559](https://github.com/calcit-lang/calcit/issues/559). The adapter is merged
+and this repository pins that final revision; cutover may start after this PR's
+dual-platform CI and complete schema-v2 scalar reproduction are accepted.
 
 ## 中文
 
@@ -46,8 +46,8 @@ GitHub Actions 在 Ubuntu 与 macOS 上运行该 correctness-gated smoke；报�
 revision 与固定 source fixture SHA-256。
 
 Calcit core 的删除与切换由 [calcit#559](https://github.com/calcit-lang/calcit/issues/559) 单独追踪。
-只有 adapter 合入 Calcit `main`、本仓库固定最终 revision，并且 standalone quick smoke 能重现
-schema-v2 scalar suite 后，才能开始该步骤。
+adapter 已合入 Calcit `main`，本仓库也已固定最终 revision；本 PR 的双平台 CI 与完整
+schema-v2 scalar reproduction 验收后即可开始该步骤。
 
 追踪关系：[calcit#547](https://github.com/calcit-lang/calcit/issues/547)、
 [calcit#558](https://github.com/calcit-lang/calcit/issues/558)、

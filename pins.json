@@ -2,7 +2,7 @@
   "schema": "calcit-calx-bench-pins/1",
   "calcit": {
     "repository": "https://github.com/calcit-lang/calcit",
-    "commit": "9732badf71632a3e3ff3fa3dd6f95f5aab06c134"
+    "commit": "42c2f33930281151c3b3581075691ae79f8a36d5"
   },
   "calxVm": {
     "source": "runner/Cargo.lock",
@@ -16,6 +16,7 @@
   "runner": {
     "ownership": "standalone-revision-pinned-runner",
     "adapterStatus": "active-internal-revision-pinned",
+    "adapterEdition": "calcit-calx-benchmark-session/1",
     "manifest": "runner/Cargo.toml",
     "source": "runner/src/main.rs"
   }

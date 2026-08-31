@@ -1,7 +1,7 @@
 # Fixture provenance / Fixture 来源
 
 `scalar-kernels.cirru` is copied from
-`calcit-lang/calcit@8bf2a92e34bbc414c58cc8d44d139ff525a4f2dc`.
+`calcit-lang/calcit@42c2f33930281151c3b3581075691ae79f8a36d5`.
 The Calcit repository remains the correctness source of truth. The standalone runner
 compiles this reviewed copy, while `yarn check-pins` requires it to remain byte-identical
 to the authoritative fixture in the pinned `vendor/calcit` revision.

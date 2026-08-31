@@ -8,15 +8,16 @@ an **experimental benchmark/research product**, not a Calcit runtime feature,
 language correctness gate, or production dependency. This phase documents the
 contract and bootstrap inventory. The standalone repository has now been
 created and now owns the runner that consumes the revision-pinned session
-adapter. Removal from Calcit core remains blocked on landing that adapter on
-Calcit `main`, pinning the final revision here, and standalone quick-smoke acceptance.
+adapter. The adapter landed on Calcit `main` as `42c2f339`; this harness pins
+that exact revision. Removal from Calcit core remains blocked only on accepting
+this PR's standalone CI and complete scalar reproduction.
 
 本文最初冻结 [calcit#557](https://github.com/calcit-lang/calcit/issues/557)
 追踪的第一阶段边界。该 harness 是**实验性 benchmark/research 产品**，不是 Calcit
 runtime 功能、语言正确性 gate 或生产依赖。本阶段只记录契约和 bootstrap inventory，
-独立仓库现已创建，并已拥有消费 revision-pinned session adapter 的 runner；在 adapter 合入
-Calcit `main`、本仓库固定最终 revision 且独立 quick smoke 验收完成前，仍不从 Calcit core
-删除原资产。
+独立仓库现已创建，并已拥有消费 revision-pinned session adapter 的 runner；adapter 已作为
+`42c2f339` 合入 Calcit `main`，本仓库也固定到该 revision。当前只等待本 PR 的独立 CI 与完整
+scalar reproduction 验收，之后才从 Calcit core 删除原资产。
 
 The machine-readable bootstrap manifest is
 [`bootstrap.json`](./bootstrap.json). Issue
@@ -145,11 +146,11 @@ embedding API。harness 固定 Calcit commit/tag，升级 pin 前运行 compile 
 | full debug/release matrix | manual/versioned evidence workflow | not a correctness gate |
 
 The phase-two bootstrap is accepted only when the standalone harness builds
-against the final merged Calcit revision, passes all five runner tests and eight
+against the final merged Calcit revision, passes all six runner tests and eight
 Node tests, emits a schema-v2 quick report with raw samples, and links its
 README/AGENTS status and boundaries back to `#547/#558`. Only then may #559 remove
 the core binary and policy checks.
 
-第二阶段只有在独立 harness 固定已合入的最终 Calcit revision、通过 5 项 runner tests 与 8 项
+第二阶段只有在独立 harness 固定已合入的最终 Calcit revision、通过 6 项 runner tests 与 8 项
 Node tests、输出保留 raw samples 的 schema-v2 quick report，并在 README/AGENTS 回链
-`#547/#558` 后才通过验收；之后 #559 才能删除 core binary 和 policy checks。
+`#547`/`#558` 后才通过验收；之后 `#559` 才能删除 core binary 和 policy checks。
