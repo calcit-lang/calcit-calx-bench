@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -60,9 +60,18 @@ export function verifyWorkload(source, authoritative, expectedSha256) {
   return actualSha256;
 }
 
+export function verifySubmoduleInitialized(calcitRoot) {
+  if (!existsSync(path.join(calcitRoot, ".git"))) {
+    throw new Error(
+      "Calcit submodule is not initialized; run `git submodule update --init --checkout`",
+    );
+  }
+}
+
 export function verifyPins(repoRoot) {
   const pins = JSON.parse(readFileSync(path.join(repoRoot, "pins.json"), "utf8"));
   const calcitRoot = path.join(repoRoot, "vendor/calcit");
+  verifySubmoduleInitialized(calcitRoot);
   const actualCommit = execFileSync("git", ["rev-parse", "HEAD"], {
     cwd: calcitRoot,
     encoding: "utf8",
