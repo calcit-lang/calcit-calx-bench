@@ -23,6 +23,7 @@ jobs:
         with:
           workspaces: vendor/calcit
       - run: corepack enable
+      - run: yarn install --immutable
       - run: yarn test
       - run: yarn check-pins
       - run: cargo test --manifest-path vendor/calcit/Cargo.toml --bin calcit-calx-bench

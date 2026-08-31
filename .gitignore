@@ -1,3 +1,4 @@
 /target
+.pnp.*
+.yarn/install-state.gz
 .DS_Store
-
