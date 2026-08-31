@@ -27,13 +27,13 @@ buffer 前，typed-buffer 结果保持 `not-measured-no-typed-buffer-abi`。WASM
 Calcit callable 与复用的 Calx VM 预热 20 次、测量 100 次：
 
 ```bash
-yarn bench-calx-e2e
+yarn bench
 ```
 
 默认原始报告写到 `target/calx-bench/latest.json`。快速检查测量链路可用：
 
 ```bash
-CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench-calx-e2e
+CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench
 ```
 
 仓库内首份完整、干净工作区 baseline 及其有限结论见
@@ -50,7 +50,7 @@ CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench-calx-e2e
 单 case runner 成功时，stdout 恰好输出一个 `calcit-calx-benchmark/2` JSON；失败写入 stderr 并以非零状态退出：
 
 ```bash
-cargo run --release --bin calcit-calx-bench -- \
+cargo run --manifest-path runner/Cargo.toml --release --bin calcit-calx-bench -- \
   --kernel range-sum --size 1000 --vm-warmup 20 --hot-iterations 100
 ```
 
@@ -68,11 +68,11 @@ differential corpus 验证。
 ```bash
 CARGO_PROFILE_RELEASE_STRIP=none \
   CARGO_PROFILE_RELEASE_DEBUG=line-tables-only \
-  cargo build --release --bin calcit-calx-bench
+  cargo build --manifest-path runner/Cargo.toml --release --bin calcit-calx-bench
 
 samply record --save-only --main-thread-only --unstable-presymbolicate \
   --output target/calx-profile/compile-cpu.json.gz \
-  ./target/release/calcit-calx-bench \
+  ./runner/target/release/calcit-calx-bench \
   --kernel affine \
   --compile-profile-warmup 1000 \
   --compile-profile-stage-iterations 10000 \
@@ -114,7 +114,9 @@ frontend、snapshot、compile、boundary、VM setup 和执行；`calxHotVsLookup
 
 `program` 同时记录 function/import/syntax/instruction 数、diagnostic report 字节数、host-boundary 次数和
 VM reuse 状态。峰值内存与 allocation hotspot 需要平台 profiler；不能从墙钟时间猜测，采集时应把
-Instruments、heaptrack 或等价 profile 与同一 JSON、git commit、工具链和硬件信息一起发布。
+Instruments、heaptrack 或等价 profile 与同一 JSON、git commit、工具链和硬件信息一起发布。suite
+环境同时记录固定 Calcit/workload revision 与 source fixture 的 SHA-256；即使 fixture 内容未变，升级 pin
+也不会丢失被测源码身份。
 
 ---
 
@@ -148,13 +150,13 @@ seven, then warms both a cached Calcit callable and a reused Calx VM for 20 call
 process:
 
 ```bash
-yarn bench-calx-e2e
+yarn bench
 ```
 
 Raw output defaults to `target/calx-bench/latest.json`. Use this command for a fast harness smoke check:
 
 ```bash
-CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench-calx-e2e
+CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench
 ```
 
 The first complete clean-worktree baseline and its bounded conclusions are recorded in
@@ -168,7 +170,7 @@ On success, the single-case runner emits exactly one `calcit-calx-benchmark/2` J
 reported on stderr with a nonzero exit status:
 
 ```bash
-cargo run --release --bin calcit-calx-bench -- \
+cargo run --manifest-path runner/Cargo.toml --release --bin calcit-calx-bench -- \
   --kernel range-sum --size 1000 --vm-warmup 20 --hot-iterations 100
 ```
 
@@ -188,11 +190,11 @@ corpus.
 ```bash
 CARGO_PROFILE_RELEASE_STRIP=none \
   CARGO_PROFILE_RELEASE_DEBUG=line-tables-only \
-  cargo build --release --bin calcit-calx-bench
+  cargo build --manifest-path runner/Cargo.toml --release --bin calcit-calx-bench
 
 samply record --save-only --main-thread-only --unstable-presymbolicate \
   --output target/calx-profile/compile-cpu.json.gz \
-  ./target/release/calcit-calx-bench \
+  ./runner/target/release/calcit-calx-bench \
   --kernel affine \
   --compile-profile-warmup 1000 \
   --compile-profile-stage-iterations 10000 \
@@ -239,4 +241,6 @@ different deployment scenarios and are not interchangeable.
 The `program` section records function/import/syntax/instruction counts, diagnostic-report bytes, host-boundary
 calls, and VM reuse. Peak memory and allocation hotspots require a platform profiler; they must not be inferred
 from wall time. Publish Instruments, heaptrack, or equivalent profiles alongside the same JSON, git commit,
-toolchain, and hardware metadata.
+toolchain, and hardware metadata. The suite environment also records the exact
+Calcit/workload revision and the source fixture SHA-256, preserving workload identity
+even when a pin upgrade keeps the fixture bytes unchanged.

@@ -10,7 +10,11 @@ permissions:
 
 jobs:
   harness:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,10 +25,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: vendor/calcit
+          workspaces: runner
       - run: corepack enable
       - run: yarn install --immutable
       - run: yarn test
       - run: yarn check-pins
-      - run: cargo test --manifest-path vendor/calcit/Cargo.toml --bin calcit-calx-bench
+      - run: cargo test --manifest-path runner/Cargo.toml
       - run: CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench

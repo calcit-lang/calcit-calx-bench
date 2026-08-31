@@ -1,15 +1,20 @@
 # calcit-calx-bench
 
-Experimental, revision-pinned Calcit → Calx benchmark orchestration and report archive.
-This repository is not a production runtime, a language correctness gate, or the
-`calcit-calx` native FFI demo.
+## English
 
-Current bootstrap status is deliberately transitional: experiment settings, suite
-orchestration, methodology and immutable reports are owned here, while the Rust
-single-case runner is built from the exact Calcit submodule commit recorded in
-[`pins.json`](pins.json). The runner still uses compiler internals. Core cutover is
-blocked until Calcit exposes the narrow, session-oriented internal benchmark adapter
-specified in [the extraction contract](docs/extraction-contract.md).
+This repository owns experimental, revision-pinned Calcit → Calx benchmark
+orchestration, the standalone Rust runner, methodology, and immutable report archives.
+It is not a production runtime, a language correctness gate, or the `calcit-calx`
+native FFI demo.
+
+The runner in [`runner/`](runner/) consumes only the internal
+`CalxBenchmarkSession` adapter compiled from the exact Calcit submodule commit in
+[`pins.json`](pins.json). It does not access compiler globals, mutable registries, or
+undeclared preprocessing/runtime functions. The adapter deliberately has no semver
+compatibility promise: every pin upgrade must pass the runner tests, pin checks, and
+debug/release quick smoke before measurement results are accepted.
+GitHub Actions runs that correctness-gated smoke on both Ubuntu and macOS. Reports
+record the exact workload revision and pinned source-fixture SHA-256.
 
 ```bash
 git submodule update --init --checkout
@@ -23,17 +28,27 @@ The full benchmark is `yarn bench`. Reports are written under `target/calx-bench
 reviewed immutable measurements may then be added under `benchmarks/calx/`. Ratios and
 crossover points are informational and never become machine-specific correctness gates.
 
+Calcit core cutover remains a separate step tracked by
+[calcit#559](https://github.com/calcit-lang/calcit/issues/559). The adapter is merged
+and this repository pins that final revision; cutover may start after this PR's
+dual-platform CI and complete schema-v2 scalar reproduction are accepted.
+
 ## 中文
 
-本仓库独立维护 Calcit → Calx 的实验参数、suite 调度、方法文档和不可变报告归档；它不是生产
-runtime、语言正确性 gate，也不是 `calcit-calx` native FFI demo。
+本仓库独立维护 Calcit → Calx 的实验参数、suite 调度、standalone Rust runner、方法文档和
+不可变报告归档；它不是生产 runtime、语言正确性 gate，也不是 `calcit-calx` native FFI demo。
 
-当前首版是明确的过渡阶段：[`pins.json`](pins.json) 固定 Calcit submodule 的精确 commit，
-并从该 revision 构建已有单 case runner。该 runner 仍使用 compiler internals；只有 Calcit 主仓提供
-拆分契约中规定的窄 session benchmark adapter、独立 quick smoke 通过后，才能迁出 runner 并删除
-core 中的旧入口。
+[`runner/`](runner/) 只消费 [`pins.json`](pins.json) 所固定 Calcit submodule revision 编译出的
+internal `CalxBenchmarkSession` adapter，不直接访问 compiler globals、mutable registries 或未声明的
+preprocess/runtime 函数。adapter 不承诺 semver 兼容；每次升级 pin 都必须通过 runner tests、pin
+检查和 debug/release quick smoke，才能接受新的测量结果。
+GitHub Actions 在 Ubuntu 与 macOS 上运行该 correctness-gated smoke；报告显式记录 workload
+revision 与固定 source fixture SHA-256。
+
+Calcit core 的删除与切换由 [calcit#559](https://github.com/calcit-lang/calcit/issues/559) 单独追踪。
+adapter 已合入 Calcit `main`，本仓库也已固定最终 revision；本 PR 的双平台 CI 与完整
+schema-v2 scalar reproduction 验收后即可开始该步骤。
 
 追踪关系：[calcit#547](https://github.com/calcit-lang/calcit/issues/547)、
 [calcit#558](https://github.com/calcit-lang/calcit/issues/558)、
 [calcit#559](https://github.com/calcit-lang/calcit/issues/559)。Issue 与 PR 保持中英双语。
-
