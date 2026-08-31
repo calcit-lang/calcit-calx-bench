@@ -2,14 +2,21 @@
   "schema": "calcit-calx-bench-pins/1",
   "calcit": {
     "repository": "https://github.com/calcit-lang/calcit",
-    "commit": "8bf2a92e34bbc414c58cc8d44d139ff525a4f2dc"
+    "commit": "9732badf71632a3e3ff3fa3dd6f95f5aab06c134"
   },
   "calxVm": {
-    "source": "vendor/calcit/Cargo.lock",
+    "source": "runner/Cargo.lock",
     "expectedVersion": "0.3.0"
   },
+  "workload": {
+    "path": "fixtures/scalar-kernels.cirru",
+    "authoritativePath": "vendor/calcit/tests/fixtures/calx/scalar-kernels.cirru",
+    "sha256": "41cee117f4e5f75d7ee6c5b92b845ab180cae0b66058c0c54614e6dda9ebf771"
+  },
   "runner": {
-    "ownership": "transitional-pinned-calcit-binary",
-    "adapterStatus": "blocked-until-revision-pinned-session-adapter-exists"
+    "ownership": "standalone-revision-pinned-runner",
+    "adapterStatus": "active-internal-revision-pinned",
+    "manifest": "runner/Cargo.toml",
+    "source": "runner/src/main.rs"
   }
 }

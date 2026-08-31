@@ -1,0 +1,22 @@
+[package]
+name = "calcit-calx-bench-runner"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[[bin]]
+name = "calcit-calx-bench"
+path = "src/main.rs"
+
+[dependencies]
+argh = "0.1.19"
+calcit = { path = "../vendor/calcit" }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+
+[profile.release]
+lto = true
+opt-level = "s"
+codegen-units = 1
+panic = "unwind"
+strip = "debuginfo"

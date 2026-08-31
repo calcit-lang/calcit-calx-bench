@@ -1,4 +1,5 @@
 import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -8,7 +9,13 @@ import { integerFromEnvironment } from "./bench-calx-settings.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const calcitRoot = path.resolve(repoRoot, process.env.CALX_CALCIT_CHECKOUT ?? "vendor/calcit");
+const runnerRoot = path.join(repoRoot, "runner");
 const pins = JSON.parse(readFileSync(path.join(repoRoot, "pins.json"), "utf8"));
+const workloadSource = readFileSync(path.join(repoRoot, pins.workload.path));
+const workloadSha256 = createHash("sha256").update(workloadSource).digest("hex");
+if (workloadSha256 !== pins.workload.sha256) {
+  throw new Error(`workload SHA-256 is ${workloadSha256}, expected ${pins.workload.sha256}`);
+}
 const quick = process.env.CALX_BENCH_QUICK === "1";
 const samples = positiveInteger("CALX_BENCH_SAMPLES", quick ? 2 : 7);
 const processWarmup = nonNegativeInteger("CALX_BENCH_PROCESS_WARMUP", quick ? 0 : 2);
@@ -63,7 +70,7 @@ function build(profile) {
   const args = ["build", "--bin", "calcit-calx-bench", "--message-format=json-render-diagnostics"];
   if (profile === "release") args.push("--release");
   const result = spawnSync("cargo", args, {
-    cwd: calcitRoot,
+    cwd: runnerRoot,
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
   });
@@ -101,7 +108,7 @@ function runCase(binary, kernel, size) {
   ];
   const started = process.hrtime.bigint();
   const result = spawnSync(binary, args, {
-    cwd: calcitRoot,
+    cwd: repoRoot,
     encoding: "utf8",
     maxBuffer: 16 * 1024 * 1024,
   });
@@ -264,6 +271,8 @@ const report = {
     calcitGitCommit: actualCalcitCommit,
     calcitGitDirty: commandOutput("git", ["status", "--porcelain"], calcitRoot).length > 0,
     calcitSource: pins.calcit.repository,
+    workloadRevision: actualCalcitCommit,
+    workloadSha256,
     runnerOwnership: pins.runner.ownership,
     adapterStatus: pins.runner.adapterStatus,
   },

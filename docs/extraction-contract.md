@@ -7,17 +7,19 @@ This document originally froze the phase-one boundary tracked by
 an **experimental benchmark/research product**, not a Calcit runtime feature,
 language correctness gate, or production dependency. This phase documents the
 contract and bootstrap inventory. The standalone repository has now been
-created; removal from Calcit core remains blocked on the revision-pinned
-session adapter and standalone quick-smoke acceptance.
+created and now owns the runner that consumes the revision-pinned session
+adapter. Removal from Calcit core remains blocked on landing that adapter on
+Calcit `main`, pinning the final revision here, and standalone quick-smoke acceptance.
 
 本文最初冻结 [calcit#557](https://github.com/calcit-lang/calcit/issues/557)
 追踪的第一阶段边界。该 harness 是**实验性 benchmark/research 产品**，不是 Calcit
 runtime 功能、语言正确性 gate 或生产依赖。本阶段只记录契约和 bootstrap inventory，
-独立仓库现已创建；在 revision-pinned session adapter 和独立 quick smoke 验收完成前，
-仍不从 Calcit core 删除原资产。
+独立仓库现已创建，并已拥有消费 revision-pinned session adapter 的 runner；在 adapter 合入
+Calcit `main`、本仓库固定最终 revision 且独立 quick smoke 验收完成前，仍不从 Calcit core
+删除原资产。
 
 The machine-readable bootstrap manifest is
-[`calx-harness-bootstrap.json`](./calx-harness-bootstrap.json). Issue
+[`bootstrap.json`](./bootstrap.json). Issue
 [calcit#547](https://github.com/calcit-lang/calcit/issues/547) is the product
 tracker; [calcit#558](https://github.com/calcit-lang/calcit/issues/558) owns the
 standalone bootstrap, and [calcit#559](https://github.com/calcit-lang/calcit/issues/559)
@@ -50,11 +52,11 @@ harness/schema 变化，每次测量必须固定精确的 Calcit 与 `calx-vm` r
 
 | Asset | Phase-two action | Long-term owner | Reason |
 | --- | --- | --- | --- |
-| `src/bin/calx_bench.rs` | migrate, then replace with the narrow adapter consumer | standalone harness | single-case runner and measurement phases |
-| `scripts/bench-calx-e2e.mjs` | migrate | standalone harness | process/profile/sample orchestration and aggregation |
-| `scripts/bench-calx-settings.mjs` and test | migrate | standalone harness | experiment-setting policy |
-| `docs/run/calx-benchmark.md` | migrate methodology; leave a short core link | standalone harness | measurement and comparison policy |
-| `benchmarks/calx/README.md` and versioned JSON | migrate without rewriting raw data | standalone harness | archive and bounded conclusions |
+| `src/bin/calx_bench.rs` | migrated to `runner/src/main.rs` as the narrow adapter consumer; remove the core copy in #559 | standalone harness | single-case runner and measurement phases |
+| `scripts/bench-calx-e2e.mjs` | migrated | standalone harness | process/profile/sample orchestration and aggregation |
+| `scripts/bench-calx-settings.mjs` and test | migrated | standalone harness | experiment-setting policy |
+| `docs/run/calx-benchmark.md` | methodology migrated; leave a short core link in #559 | standalone harness | measurement and comparison policy |
+| `benchmarks/calx/README.md` and versioned JSON | migrated without rewriting raw data | standalone harness | archive and bounded conclusions |
 | `tests/fixtures/calx/scalar-kernels.cirru` | copy with source revision and keep original | both, core authoritative | benchmark workload also serves differential correctness |
 | `src/codegen/calx.rs`, `src/codegen/calx/lowering.rs` | stay | Calcit core | backend semantics and typed boundary |
 | `src/program/tests.rs` Calx tests | stay | Calcit core | eligibility, golden, trap, fallback, and differential correctness |
@@ -79,7 +81,8 @@ scalar source fixture 是唯一明确允许 copy-with-provenance 的共享资产
   nonzero. Partial JSON is never reported as success.
 - Reports retain debug/release profile, OS/architecture/CPU/memory, complete
   Rust/Cargo/Node identity, exact Calcit commit plus dirty state, resolved
-  `calx-vm` version, workload/matrix/settings, warm-up policy, and scope gaps.
+  `calx-vm` version, workload revision and SHA-256, matrix/settings, warm-up policy,
+  and scope gaps.
 - Archived raw reports are immutable. A schema change creates a new schema ID
   and migration note rather than rewriting old files.
 - Ratios and crossover points are informational. Machine-specific absolute
@@ -90,13 +93,13 @@ scalar source fixture 是唯一明确允许 copy-with-provenance 的共享资产
   `rawSamples`。
 - parse/build/correctness/schema/runtime 失败写 stderr 并非零退出，不把 partial JSON 当成功结果。
 - 报告保留 profile、主机/工具链、精确 Calcit commit 与 dirty 状态、resolved `calx-vm`
-  版本、workload/matrix/settings、预热政策和未覆盖范围。
+  版本、workload revision/SHA-256、matrix/settings、预热政策和未覆盖范围。
 - 已归档 raw report 不可改写；schema 变化使用新 ID 和 migration note。
 - ratio/crossover 只提供信息，不把机器相关绝对阈值加入普通 correctness CI。
 
 ## Revision-pinned internal adapter / 固定 revision 的内部 adapter
 
-The standalone runner must stop reaching `PROGRAM_CODE_DATA`,
+The standalone runner no longer reaches `PROGRAM_CODE_DATA`,
 `ProgramFileData`, `ensure_def_id`, `run_fn`, or mutable global registries
 directly. A narrow adapter compiled from the pinned Calcit revision exposes one
 session-oriented path:
@@ -138,15 +141,15 @@ embedding API。harness 固定 Calcit commit/tag，升级 pin 前运行 compile 
 | Node: complete safe integers accepted | standalone settings test | removed from `check-all` in #559 |
 | Node: partial/fractional/exponential/padded values rejected | standalone settings test | removed from `check-all` in #559 |
 | Node: unsafe/below-minimum values rejected | standalone settings test | removed from `check-all` in #559 |
-| `CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench-calx-e2e` | required PR smoke | core keeps it until standalone passes |
+| `CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench` | required PR smoke | core keeps its current smoke until standalone passes |
 | full debug/release matrix | manual/versioned evidence workflow | not a correctness gate |
 
 The phase-two bootstrap is accepted only when the standalone harness builds
-against an explicit Calcit revision, passes all seven migrated tests, emits a
-schema-v2 quick report with raw samples, and links its README/AGENTS status and
-boundaries back to #547/#558. Only then may #559 remove the core binary and
-policy checks.
+against the final merged Calcit revision, passes all five runner tests and eight
+Node tests, emits a schema-v2 quick report with raw samples, and links its
+README/AGENTS status and boundaries back to #547/#558. Only then may #559 remove
+the core binary and policy checks.
 
-第二阶段只有在独立 harness 固定 Calcit revision、通过迁移的 3 Rust + 4 Node tests、输出保留
-raw samples 的 schema-v2 quick report，并在 README/AGENTS 回链 #547/#558 后才通过验收；之后
-#559 才能删除 core binary 和 policy checks。
+第二阶段只有在独立 harness 固定已合入的最终 Calcit revision、通过 5 项 runner tests 与 8 项
+Node tests、输出保留 raw samples 的 schema-v2 quick report，并在 README/AGENTS 回链
+#547/#558 后才通过验收；之后 #559 才能删除 core binary 和 policy checks。

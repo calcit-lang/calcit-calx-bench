@@ -1,6 +1,6 @@
 {
   "schema": "calcit-calx-harness-bootstrap/1",
-  "status": "experimental-benchmark",
+  "status": "experimental-benchmark-adapter-consumer",
   "tracking": {
     "parent": "calcit-lang/calcit#547",
     "contract": "calcit-lang/calcit#557",
@@ -23,19 +23,20 @@
     "adapterStability": "internal-revision-pinned-no-semver-promise"
   },
   "move": [
-    { "path": "src/bin/calx_bench.rs", "role": "single-case-runner" },
-    { "path": "scripts/bench-calx-e2e.mjs", "role": "suite-orchestration" },
-    { "path": "scripts/bench-calx-settings.mjs", "role": "settings-policy" },
-    { "path": "scripts/bench-calx-settings.test.mjs", "role": "settings-tests" },
-    { "path": "docs/run/calx-benchmark.md", "role": "methodology" },
-    { "path": "benchmarks/calx/README.md", "role": "archive-index" },
-    { "path": "benchmarks/calx/20260831-macos-arm64.json", "role": "immutable-raw-report" }
+    { "path": "src/bin/calx_bench.rs", "destination": "runner/src/main.rs", "role": "single-case-runner", "status": "migrated" },
+    { "path": "scripts/bench-calx-e2e.mjs", "role": "suite-orchestration", "status": "migrated" },
+    { "path": "scripts/bench-calx-settings.mjs", "role": "settings-policy", "status": "migrated" },
+    { "path": "scripts/bench-calx-settings.test.mjs", "role": "settings-tests", "status": "migrated" },
+    { "path": "docs/run/calx-benchmark.md", "destination": "docs/methodology.md", "role": "methodology", "status": "migrated" },
+    { "path": "benchmarks/calx/README.md", "role": "archive-index", "status": "migrated" },
+    { "path": "benchmarks/calx/20260831-macos-arm64.json", "role": "immutable-raw-report", "status": "migrated" }
   ],
   "copyWithProvenance": [
     { "path": "tests/fixtures/calx/scalar-kernels.cirru", "coreRemainsAuthoritative": true }
   ],
   "stayInCore": [
     "src/codegen/calx.rs",
+    "src/codegen/calx/benchmark.rs",
     "src/codegen/calx/lowering.rs",
     "src/program/tests.rs",
     "tests/fixtures/calx/scalar-kernels.cirru",
@@ -55,7 +56,11 @@
     "statistics": ["median", "median-absolute-deviation"],
     "absoluteCiThresholds": false
   },
+  "ciPlatforms": ["ubuntu-latest", "macos-latest"],
   "adapter": {
+    "implementation": "vendor/calcit/src/codegen/calx/benchmark.rs",
+    "consumer": "runner/src/main.rs",
+    "status": "active-internal-revision-pinned",
     "requiredOperations": [
       "install-explicit-source-corpus",
       "preprocess-to-immutable-program-handle",
@@ -73,9 +78,9 @@
     ]
   },
   "migrationTests": {
-    "rust": 3,
-    "node": 4,
-    "quickSmoke": "CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench-calx-e2e",
-    "fullMatrix": "yarn bench-calx-e2e"
+    "rust": 5,
+    "node": 8,
+    "quickSmoke": "CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench",
+    "fullMatrix": "yarn bench"
   }
 }
