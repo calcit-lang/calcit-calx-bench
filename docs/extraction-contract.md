@@ -98,7 +98,7 @@ scalar 与 F64Buffer source fixtures 是唯一明确允许 copy-with-provenance 
   `rawSamples`。
 - parse/build/correctness/schema/runtime 失败写 stderr 并非零退出，不把 partial JSON 当成功结果。
 - 报告保留 profile、主机/工具链、精确 Calcit commit 与 dirty 状态、resolved `calx-vm`
-  版本、workload revision/SHA-256、matrix/settings、预热政策和未覆盖范围。
+  版本、workload revision、每个 fixture 的 SHA-256、matrix/settings、预热政策和未覆盖范围。
 - 已归档 raw report 不可改写；schema 变化使用新 ID 和 migration note。
 - ratio/crossover 只提供信息，不把机器相关绝对阈值加入普通 correctness CI。
 
