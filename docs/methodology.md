@@ -2,24 +2,26 @@
 
 ## 中文
 
-这套基准用于回答一个有限问题：对已经通过 correctness corpus 的 typed scalar kernel，Calcit frontend、
+这套基准用于回答一个有限问题：对已经通过 correctness corpus 的 typed scalar 与只读 F64Buffer kernel，Calcit frontend、
 Calx 编译、严格边界、VM 建立和执行全部计入后，哪些调用模式可能受益。它不把一个微基准推广为语言级
 性能结论，也不设置会因机器噪声阻塞普通 CI 的绝对阈值。
 
 ### 当前范围
 
-source-backed corpus 包含五个 kernel：
+source-backed corpus 包含六个 kernel：
 
 - `range-sum`：线性 tail recur 与 accumulation；
 - `fibonacci`：direct recursion 与分支；
 - `affine`：fixed-arity helper call graph；
 - `polynomial`：固定深度数值表达式；
 - `bounded-simulation`：随输入规模增长的数值状态迭代。
+- `dot-product`：两个 typed `F64Buffer` 的只读线性访问与累加。
 
-所有 case 都先执行同一 typed preprocessed source 的 Calcit/Calx 差分检查。当前报告明确标记
-`scalar-only`。Calcit persistent List/Map/Set 不会冒充 typed buffer；在 Calcit/Calx ABI 出现真实同质
-buffer 前，typed-buffer 结果保持 `not-measured-no-typed-buffer-abi`。WASM 是非阻塞参照，本阶段不制造
-无法稳定复现的对比数字。
+所有 case 都先执行同一 typed preprocessed source 的 Calcit/Calx 差分检查。`dot-product` 使用真实
+Calcit/Calx `F64Buffer` 边界；报告分别保留输入构造、`copy-from-calcit` 编码、预编码后复用 VM 的纯执行，
+以及每次重新复制后执行并解码的耗时。当前 adapter 没有 shared/adopted ownership，因此这两条路径明确
+保持未测。Calcit persistent List/Map/Set 不会冒充 typed buffer。WASM 是非阻塞参照，本阶段不制造无法稳定
+复现的对比数字。
 
 ### 复现命令
 
@@ -47,7 +49,7 @@ CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench
 - `CALX_BENCH_HOT_ITERATIONS`：每个进程内的 hot call 测量次数；
 - `CALX_BENCH_OUTPUT`：相对仓库根目录或绝对 JSON 输出路径。
 
-单 case runner 成功时，stdout 恰好输出一个 `calcit-calx-benchmark/2` JSON；失败写入 stderr 并以非零状态退出：
+单 case runner 成功时，stdout 恰好输出一个 `calcit-calx-benchmark/3` JSON；失败写入 stderr 并以非零状态退出：
 
 ```bash
 cargo run --manifest-path runner/Cargo.toml --release --bin calcit-calx-bench -- \
@@ -98,10 +100,13 @@ cache candidate，不代表 cache-hit 成本。
 - `compile.planningNs`：从 typed expressions 建立 lowering plan；
 - `compile.programConstructionNs`：声明 imports/functions、emission 与 `ProgramBuilder::build`；
 - `compile.validationLoweringNs`：strict validation 与 Calx instruction lowering；
-- `runtime.boundaryArgumentsNs` / `boundaryResultNs`：Calcit↔Calx scalar conversion；
+- `input.*`：输入构造、F64Buffer 数量/元素/字节数与边界 ownership；
+- `runtime.boundaryArgumentsNs` / `boundaryResultNs`：一次 Calcit↔Calx conversion；
+- `runtime.boundaryArgumentsPerCallNs`：重复执行 `copy-from-calcit` 编码的平均成本；
 - `runtime.vmSetupNs`：从 immutable validated program 建立 VM；
 - `runtime.pureExecutionNs`：一次 `run_typed`，包含 strict runtime argument validation；
 - `runtime.hotExecutionPerCallNs`：预先准备参数并复用 VM frames/stack 后的平均调用耗时；
+- `runtime.hotWithBoundaryPerCallNs`：每次重新编码参数、复用 VM 执行并解码结果的平均总成本；
 - `runtime.nativeCallNs`：经 `run_program_with_docs` 完成 guard、entry lookup 与执行的一次 embedding-visible 调用；
 - `runtime.cachedNativeResolutionNs`：从已 preprocess program 解析并缓存 Calcit callable 的一次性成本；
 - `runtime.cachedNativeExecutionPerCallNs`：预先准备参数并复用 callable 后的平均调用耗时，仍包含函数 scope、参数绑定与 runner execution；
@@ -122,26 +127,27 @@ Instruments、heaptrack 或等价 profile 与同一 JSON、git commit、工具�
 
 ## English
 
-This benchmark answers one bounded question: for typed scalar kernels that already pass the correctness corpus,
+This benchmark answers one bounded question: for typed scalar and read-only F64Buffer kernels that already pass the correctness corpus,
 which call patterns may benefit after Calcit frontend work, Calx compilation, strict boundaries, VM setup, and
 execution are all included? It does not generalize one microbenchmark into a language-wide performance claim, and
 it defines no noise-sensitive absolute threshold for ordinary CI.
 
 ### Current scope
 
-The source-backed corpus contains five kernels:
+The source-backed corpus contains six kernels:
 
 - `range-sum`: linear tail recursion and accumulation;
 - `fibonacci`: direct recursion and branching;
 - `affine`: a fixed-arity helper call graph;
 - `polynomial`: a fixed-depth numeric expression;
 - `bounded-simulation`: numeric state iteration that grows with input size.
+- `dot-product`: read-only linear access and accumulation over two typed `F64Buffer` values.
 
-Every case first checks Calcit/Calx differential correctness from the same typed preprocessed source. Reports are
-explicitly marked `scalar-only`. Calcit persistent List/Map/Set values are never presented as typed buffers; until a
-real homogeneous buffer exists in the Calcit/Calx ABI, typed-buffer status remains
-`not-measured-no-typed-buffer-abi`. WASM is a non-blocking reference and this stage does not manufacture an unstable
-comparison number.
+Every case first checks Calcit/Calx differential correctness from the same typed preprocessed source. `dot-product`
+uses the real Calcit/Calx `F64Buffer` boundary. Reports preserve input construction, `copy-from-calcit` encoding,
+pure reused-VM execution with pre-encoded values, and repeated encode-plus-execute-plus-decode cost. Shared and
+adopted ownership remain explicitly unmeasured because the current adapter does not expose those paths. Calcit
+persistent List/Map/Set values are never presented as typed buffers. WASM remains a non-blocking reference.
 
 ### Reproduction
 
@@ -166,7 +172,7 @@ The experiment can be pinned with `CALX_BENCH_SAMPLES`, `CALX_BENCH_PROCESS_WARM
 `CALX_BENCH_VM_WARMUP` (applied separately to the cached Calcit callable and reused Calx VM),
 `CALX_BENCH_HOT_ITERATIONS`, and `CALX_BENCH_OUTPUT`.
 
-On success, the single-case runner emits exactly one `calcit-calx-benchmark/2` JSON value on stdout. Failures are
+On success, the single-case runner emits exactly one `calcit-calx-benchmark/3` JSON value on stdout. Failures are
 reported on stderr with a nonzero exit status:
 
 ```bash
@@ -222,10 +228,13 @@ compile pipeline, so it locates cache candidates but does not model cache-hit co
 - `compile.planningNs`: build the lowering plan from typed expressions;
 - `compile.programConstructionNs`: declare and emit imports/functions, then run `ProgramBuilder::build`;
 - `compile.validationLoweringNs`: strict validation and Calx instruction lowering;
-- `runtime.boundaryArgumentsNs` / `boundaryResultNs`: Calcit↔Calx scalar conversion;
+- `input.*`: input construction, F64Buffer count/elements/bytes, and boundary ownership;
+- `runtime.boundaryArgumentsNs` / `boundaryResultNs`: one Calcit↔Calx conversion;
+- `runtime.boundaryArgumentsPerCallNs`: average repeated `copy-from-calcit` encoding cost;
 - `runtime.vmSetupNs`: instantiate a VM from the immutable validated program;
 - `runtime.pureExecutionNs`: one `run_typed`, including strict runtime argument validation;
 - `runtime.hotExecutionPerCallNs`: average call time with prebuilt arguments and reused VM frames/stack;
+- `runtime.hotWithBoundaryPerCallNs`: average repeated encode, reused-VM execute, and result-decode cost;
 - `runtime.nativeCallNs`: one embedding-visible call through `run_program_with_docs`, including its guard, entry lookup, and execution;
 - `runtime.cachedNativeResolutionNs`: one-time resolution of the cached Calcit callable from the already-preprocessed program;
 - `runtime.cachedNativeExecutionPerCallNs`: average call time with prebuilt arguments and a reused callable, while still timing function scope setup, argument binding, and runner execution;

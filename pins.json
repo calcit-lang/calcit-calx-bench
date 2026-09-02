@@ -1,17 +1,24 @@
 {
-  "schema": "calcit-calx-bench-pins/1",
+  "schema": "calcit-calx-bench-pins/2",
   "calcit": {
     "repository": "https://github.com/calcit-lang/calcit",
-    "commit": "42c2f33930281151c3b3581075691ae79f8a36d5"
+    "commit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2"
   },
   "calxVm": {
     "source": "runner/Cargo.lock",
-    "expectedVersion": "0.3.0"
+    "expectedVersion": "0.4.0"
   },
-  "workload": {
-    "path": "fixtures/scalar-kernels.cirru",
-    "authoritativePath": "vendor/calcit/tests/fixtures/calx/scalar-kernels.cirru",
-    "sha256": "41cee117f4e5f75d7ee6c5b92b845ab180cae0b66058c0c54614e6dda9ebf771"
+  "workloads": {
+    "scalar": {
+      "path": "fixtures/scalar-kernels.cirru",
+      "authoritativePath": "vendor/calcit/tests/fixtures/calx/scalar-kernels.cirru",
+      "sha256": "41cee117f4e5f75d7ee6c5b92b845ab180cae0b66058c0c54614e6dda9ebf771"
+    },
+    "f64Buffer": {
+      "path": "fixtures/f64-buffer-kernel.cirru",
+      "authoritativePath": "vendor/calcit/tests/fixtures/calx/f64-buffer-kernel.cirru",
+      "sha256": "ec2ae79f248386169c4c6f43d43b8dedee9f51e62432554d1be905e75f8dbf9a"
+    }
   },
   "runner": {
     "ownership": "standalone-revision-pinned-runner",

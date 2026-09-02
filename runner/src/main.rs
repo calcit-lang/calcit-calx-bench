@@ -1,4 +1,4 @@
-//! Reproducible single-process measurement for one Calcit-to-Calx scalar case.
+//! Reproducible single-process measurement for one Calcit-to-Calx benchmark case.
 //!
 //! This standalone runner consumes only the internal session adapter from an
 //! exactly pinned Calcit revision. The orchestration script runs it in fresh
@@ -20,7 +20,8 @@ use calcit::codegen::calx::benchmark_session::{
 use calcit::codegen::calx::{CalxCompileCache, CalxHostImports};
 use serde::Serialize;
 
-const FIXTURE_NAMESPACE: &str = "bench.calx-kernels";
+const SCALAR_FIXTURE_NAMESPACE: &str = "bench.calx-kernels";
+const F64_BUFFER_FIXTURE_NAMESPACE: &str = "bench.calx-f64-buffer";
 const CARGO_LOCK: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/Cargo.lock"));
 
 struct ProfileAllocator;
@@ -107,9 +108,9 @@ unsafe impl GlobalAlloc for ProfileAllocator {
 static GLOBAL_ALLOCATOR: ProfileAllocator = ProfileAllocator;
 
 #[derive(Debug, FromArgs)]
-/// measure one source-backed Calcit-to-Calx scalar kernel
+/// measure one source-backed Calcit-to-Calx kernel
 struct Args {
-    /// kernel name: range-sum, fibonacci, affine, polynomial, or bounded-simulation
+    /// kernel name: range-sum, fibonacci, affine, polynomial, bounded-simulation, or dot-product
     #[argh(option, default = "String::from(\"range-sum\")")]
     kernel: String,
 
@@ -180,12 +181,26 @@ struct RuntimeReport {
     cached_native_execution_total_ns: u64,
     cached_native_execution_per_call_ns: u64,
     boundary_arguments_ns: u64,
+    boundary_arguments_total_ns: u64,
+    boundary_arguments_per_call_ns: u64,
     vm_setup_ns: u64,
     pure_execution_ns: u64,
     boundary_result_ns: u64,
     calx_one_shot_ns: u64,
     hot_execution_total_ns: u64,
     hot_execution_per_call_ns: u64,
+    hot_with_boundary_total_ns: u64,
+    hot_with_boundary_per_call_ns: u64,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct InputReport {
+    construction_ns: u64,
+    f64_buffer_count: u32,
+    f64_buffer_elements: u64,
+    f64_buffer_bytes: u64,
+    boundary_ownership: &'static str,
 }
 
 #[derive(Debug, Serialize)]
@@ -213,6 +228,7 @@ struct BenchmarkReport {
     fixture_install_ns: u64,
     calcit_frontend_ns: u64,
     snapshot_clone_ns: u64,
+    input: InputReport,
     compile: CompileReport,
     runtime: RuntimeReport,
     program: ProgramReport,
@@ -388,23 +404,67 @@ fn resolved_dependency_version<'a>(
     }
 }
 
-/// Build the fixed Number-only function schema for one benchmark definition.
-fn number_fn_schema(arity: usize) -> Arc<CalcitTypeAnnotation> {
+/// Build one fixed function schema for a benchmark definition.
+fn fn_schema(
+    arg_types: Vec<Arc<CalcitTypeAnnotation>>,
+    return_type: Arc<CalcitTypeAnnotation>,
+) -> Arc<CalcitTypeAnnotation> {
     Arc::new(CalcitTypeAnnotation::Fn(Arc::new(CalcitFnTypeAnnotation {
         generics: Arc::new(vec![]),
         where_bounds: Arc::new(vec![]),
-        arg_types: (0..arity)
-            .map(|_| Arc::new(CalcitTypeAnnotation::Number))
-            .collect(),
-        return_type: Arc::new(CalcitTypeAnnotation::Number),
+        arg_types,
+        return_type,
         fn_kind: SchemaKind::Fn,
         rest_type: None,
         features: Arc::new(HashSet::new()),
     })))
 }
 
-/// Declare the complete source-backed scalar corpus and fixed schemas.
-fn benchmark_corpus() -> Result<CalxBenchmarkCorpus, String> {
+fn number_fn_schema(arity: usize) -> Arc<CalcitTypeAnnotation> {
+    fn_schema(
+        (0..arity)
+            .map(|_| Arc::new(CalcitTypeAnnotation::Number))
+            .collect(),
+        Arc::new(CalcitTypeAnnotation::Number),
+    )
+}
+
+fn fixture_namespace(kernel: &str) -> &'static str {
+    if kernel == "dot-product" {
+        F64_BUFFER_FIXTURE_NAMESPACE
+    } else {
+        SCALAR_FIXTURE_NAMESPACE
+    }
+}
+
+fn workload_name(kernel: &str) -> &'static str {
+    if kernel == "dot-product" {
+        "typed-f64-buffer-read"
+    } else {
+        "scalar-only"
+    }
+}
+
+/// Declare the source-backed corpus and fixed schemas for one benchmark family.
+fn benchmark_corpus(kernel: &str) -> Result<CalxBenchmarkCorpus, String> {
+    if kernel == "dot-product" {
+        return CalxBenchmarkCorpus::new(
+            F64_BUFFER_FIXTURE_NAMESPACE,
+            include_str!("../../fixtures/f64-buffer-kernel.cirru"),
+            [CalxBenchmarkDefinition::new(
+                "dot-product",
+                fn_schema(
+                    vec![
+                        Arc::new(CalcitTypeAnnotation::F64Buffer),
+                        Arc::new(CalcitTypeAnnotation::F64Buffer),
+                        Arc::new(CalcitTypeAnnotation::Number),
+                        Arc::new(CalcitTypeAnnotation::Number),
+                    ],
+                    Arc::new(CalcitTypeAnnotation::Number),
+                ),
+            )],
+        );
+    }
     let definitions = [
         ("range-sum", 2),
         ("fibonacci", 1),
@@ -416,7 +476,7 @@ fn benchmark_corpus() -> Result<CalxBenchmarkCorpus, String> {
     .into_iter()
     .map(|(name, arity)| CalxBenchmarkDefinition::new(name, number_fn_schema(arity)));
     CalxBenchmarkCorpus::new(
-        FIXTURE_NAMESPACE,
+        SCALAR_FIXTURE_NAMESPACE,
         include_str!("../../fixtures/scalar-kernels.cirru"),
         definitions,
     )
@@ -424,7 +484,7 @@ fn benchmark_corpus() -> Result<CalxBenchmarkCorpus, String> {
 
 /// Create the only mutable setup phase, then retain the immutable pinned session.
 fn prepare_session(kernel: &str) -> Result<CalxBenchmarkSession, String> {
-    CalxBenchmarkSession::prepare(&benchmark_corpus()?, kernel)
+    CalxBenchmarkSession::prepare(&benchmark_corpus(kernel)?, kernel)
 }
 
 /// Map a named corpus case and its input size to concrete Calcit arguments.
@@ -444,8 +504,37 @@ fn kernel_arguments(kernel: &str, size: u32) -> Result<Vec<Calcit>, String> {
             Calcit::Number(0.5),
             Calcit::Number(0.999),
         ]),
+        "dot-product" => {
+            if size == 0 {
+                return Err("dot-product size must be greater than zero".to_owned());
+            }
+            let left = (0..size)
+                .map(|index| f64::from(index) + 1.0)
+                .collect::<Vec<_>>();
+            let right = (0..size)
+                .map(|index| 1.0 / (f64::from(index) + 1.0))
+                .collect::<Vec<_>>();
+            Ok(vec![
+                Calcit::F64Buffer(Arc::from(left)),
+                Calcit::F64Buffer(Arc::from(right)),
+                Calcit::Number(f64::from(size.saturating_sub(1))),
+                Calcit::Number(0.0),
+            ])
+        }
         _ => Err(format!("unknown Calx benchmark kernel `{kernel}`")),
     }
+}
+
+fn f64_buffer_input_shape(arguments: &[Calcit]) -> (u32, u64, u64) {
+    let mut count = 0u32;
+    let mut elements = 0u64;
+    for argument in arguments {
+        if let Calcit::F64Buffer(values) = argument {
+            count = count.saturating_add(1);
+            elements = elements.saturating_add(values.len() as u64);
+        }
+    }
+    (count, elements, elements.saturating_mul(8))
 }
 
 /// Reset counters while holding the exclusive profile allocation window.
@@ -571,7 +660,11 @@ fn measure_compile_profile(args: &Args) -> Result<CompileProfileReport, String> 
         schema: "calcit-calx-compile-profile/1",
         environment: environment_report()?,
         kernel: args.kernel.clone(),
-        workload: "complete-uncached-scalar-compilation",
+        workload: if args.kernel == "dot-product" {
+            "complete-uncached-typed-f64-buffer-compilation"
+        } else {
+            "complete-uncached-scalar-compilation"
+        },
         warmup_iterations: args.compile_profile_warmup,
         measured_iterations: args.compile_profile_iterations,
         fixture_install_ns,
@@ -702,7 +795,8 @@ fn measure_cache_profile(args: &Args) -> Result<CacheProfileReport, String> {
     {
         return Err(format!(
             "cache profile correctness mismatch for {}/{}",
-            FIXTURE_NAMESPACE, args.kernel
+            fixture_namespace(&args.kernel),
+            args.kernel
         ));
     }
 
@@ -712,7 +806,11 @@ fn measure_cache_profile(args: &Args) -> Result<CacheProfileReport, String> {
         schema: "calcit-calx-cache-profile/1",
         environment: environment_report()?,
         kernel: args.kernel.clone(),
-        workload: "revision-validated-cache-hit-plus-fresh-vm",
+        workload: if args.kernel == "dot-product" {
+            "revision-validated-typed-f64-buffer-cache-hit-plus-fresh-vm"
+        } else {
+            "revision-validated-cache-hit-plus-fresh-vm"
+        },
         warmup_iterations: args.cache_profile_warmup,
         measured_iterations: args.cache_profile_iterations,
         fixture_install_ns,
@@ -767,7 +865,11 @@ fn measure(args: &Args) -> Result<BenchmarkReport, String> {
     let (kernel, compile_timings) = session
         .compile_calx_measured(&CalxHostImports::new())
         .map_err(|error| error.to_string())?;
+    let input_construction_started = Instant::now();
     let calcit_args = kernel_arguments(&args.kernel, args.size)?;
+    let input_construction_ns = nanos(input_construction_started.elapsed());
+    let (f64_buffer_count, f64_buffer_elements, f64_buffer_bytes) =
+        f64_buffer_input_shape(&calcit_args);
 
     let native_started = Instant::now();
     let native_result = session.run_calcit_lookup(&calcit_args)?;
@@ -778,7 +880,8 @@ fn measure(args: &Args) -> Result<BenchmarkReport, String> {
     if cached_native_result != native_result {
         return Err(format!(
             "correctness mismatch for {}/{}: Calcit lookup={native_result}, Calcit cached={cached_native_result}",
-            FIXTURE_NAMESPACE, args.kernel
+            fixture_namespace(&args.kernel),
+            args.kernel
         ));
     }
 
@@ -818,9 +921,27 @@ fn measure(args: &Args) -> Result<BenchmarkReport, String> {
     if calx_result != native_result {
         return Err(format!(
             "correctness mismatch for {}/{}: Calcit={native_result}, Calx={calx_result}",
-            FIXTURE_NAMESPACE, args.kernel
+            fixture_namespace(&args.kernel),
+            args.kernel
         ));
     }
+
+    for _ in 0..args.vm_warmup {
+        black_box(CalxBenchmarkSession::encode_calx_arguments(
+            &kernel,
+            &calcit_args,
+        )?);
+    }
+    let boundary_arguments_started = Instant::now();
+    for _ in 0..args.hot_iterations {
+        black_box(CalxBenchmarkSession::encode_calx_arguments(
+            &kernel,
+            &calcit_args,
+        )?);
+    }
+    let boundary_arguments_total_ns = nanos(boundary_arguments_started.elapsed());
+    let boundary_arguments_per_call_ns =
+        boundary_arguments_total_ns / u64::from(args.hot_iterations);
 
     let mut hot_vm =
         CalxBenchmarkSession::instantiate_calx(&kernel).map_err(|error| error.to_string())?;
@@ -837,19 +958,51 @@ fn measure(args: &Args) -> Result<BenchmarkReport, String> {
     let hot_execution_total_ns = nanos(hot_started.elapsed());
     let hot_execution_per_call_ns = hot_execution_total_ns / u64::from(args.hot_iterations);
 
+    let mut boundary_hot_vm =
+        CalxBenchmarkSession::instantiate_calx(&kernel).map_err(|error| error.to_string())?;
+    for _ in 0..args.vm_warmup {
+        let input = CalxBenchmarkSession::encode_calx_arguments(&kernel, &calcit_args)?;
+        let result = boundary_hot_vm.run_values(input)?;
+        black_box(CalxBenchmarkSession::decode_calx_result(&kernel, result)?);
+    }
+    let hot_with_boundary_started = Instant::now();
+    let mut last_hot_with_boundary_result = None;
+    for _ in 0..args.hot_iterations {
+        let input = CalxBenchmarkSession::encode_calx_arguments(&kernel, &calcit_args)?;
+        let result = boundary_hot_vm.run_values(input)?;
+        last_hot_with_boundary_result =
+            Some(CalxBenchmarkSession::decode_calx_result(&kernel, result)?);
+    }
+    let hot_with_boundary_total_ns = nanos(hot_with_boundary_started.elapsed());
+    let hot_with_boundary_per_call_ns = hot_with_boundary_total_ns / u64::from(args.hot_iterations);
+    if last_hot_with_boundary_result.as_ref() != Some(&native_result) {
+        return Err(format!(
+            "hot boundary correctness mismatch for {}/{}",
+            fixture_namespace(&args.kernel),
+            args.kernel
+        ));
+    }
+
     let counts = CalxBenchmarkSession::program_counts(&kernel);
 
     Ok(BenchmarkReport {
-        schema: "calcit-calx-benchmark/2",
+        schema: "calcit-calx-benchmark/3",
         environment: environment_report()?,
         kernel: args.kernel.clone(),
-        workload: "scalar-only",
+        workload: workload_name(&args.kernel),
         size: args.size,
         vm_warmup: args.vm_warmup,
         hot_iterations: args.hot_iterations,
         fixture_install_ns,
         calcit_frontend_ns,
         snapshot_clone_ns,
+        input: InputReport {
+            construction_ns: input_construction_ns,
+            f64_buffer_count,
+            f64_buffer_elements,
+            f64_buffer_bytes,
+            boundary_ownership: "copy-from-calcit",
+        },
         compile: CompileReport {
             eligibility_ns: nanos(compile_timings.eligibility),
             planning_ns: nanos(compile_timings.planning),
@@ -863,12 +1016,16 @@ fn measure(args: &Args) -> Result<BenchmarkReport, String> {
             cached_native_execution_total_ns,
             cached_native_execution_per_call_ns,
             boundary_arguments_ns,
+            boundary_arguments_total_ns,
+            boundary_arguments_per_call_ns,
             vm_setup_ns,
             pure_execution_ns,
             boundary_result_ns,
             calx_one_shot_ns,
             hot_execution_total_ns,
             hot_execution_per_call_ns,
+            hot_with_boundary_total_ns,
+            hot_with_boundary_per_call_ns,
         },
         program: ProgramReport {
             functions: counts.functions,
@@ -982,6 +1139,37 @@ mod tests {
             .err()
             .expect("missing entries must fail");
         assert!(error.contains("missing-kernel"));
+    }
+
+    #[test]
+    fn typed_f64_buffer_case_reports_copy_boundary_and_correctness() {
+        assert!(kernel_arguments("dot-product", 0).is_err());
+        let arguments = kernel_arguments("dot-product", 4).expect("dot-product arguments");
+        assert_eq!(f64_buffer_input_shape(&arguments), (2, 8, 64));
+
+        let report = measure(&Args {
+            kernel: "dot-product".to_owned(),
+            size: 4,
+            vm_warmup: 1,
+            hot_iterations: 2,
+            compile_profile_iterations: 0,
+            compile_profile_warmup: 0,
+            compile_profile_stage_iterations: 1,
+            compile_profile_allocation_iterations: 1,
+            cache_profile_iterations: 0,
+            cache_profile_warmup: 0,
+        })
+        .expect("measure typed F64Buffer dot product");
+
+        assert_eq!(report.schema, "calcit-calx-benchmark/3");
+        assert_eq!(report.workload, "typed-f64-buffer-read");
+        assert_eq!(report.input.f64_buffer_count, 2);
+        assert_eq!(report.input.f64_buffer_elements, 8);
+        assert_eq!(report.input.f64_buffer_bytes, 64);
+        assert_eq!(report.input.boundary_ownership, "copy-from-calcit");
+        assert!(report.runtime.boundary_arguments_total_ns > 0);
+        assert!(report.runtime.hot_with_boundary_total_ns > 0);
+        assert!(report.correctness);
     }
 
     #[test]

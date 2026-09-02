@@ -11,11 +11,16 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 const calcitRoot = path.resolve(repoRoot, process.env.CALX_CALCIT_CHECKOUT ?? "vendor/calcit");
 const runnerRoot = path.join(repoRoot, "runner");
 const pins = JSON.parse(readFileSync(path.join(repoRoot, "pins.json"), "utf8"));
-const workloadSource = readFileSync(path.join(repoRoot, pins.workload.path));
-const workloadSha256 = createHash("sha256").update(workloadSource).digest("hex");
-if (workloadSha256 !== pins.workload.sha256) {
-  throw new Error(`workload SHA-256 is ${workloadSha256}, expected ${pins.workload.sha256}`);
-}
+const workloadSha256s = Object.fromEntries(
+  Object.entries(pins.workloads).map(([name, workload]) => {
+    const source = readFileSync(path.join(repoRoot, workload.path));
+    const sha256 = createHash("sha256").update(source).digest("hex");
+    if (sha256 !== workload.sha256) {
+      throw new Error(`${name} workload SHA-256 is ${sha256}, expected ${workload.sha256}`);
+    }
+    return [name, sha256];
+  }),
+);
 const quick = process.env.CALX_BENCH_QUICK === "1";
 const samples = positiveInteger("CALX_BENCH_SAMPLES", quick ? 2 : 7);
 const processWarmup = nonNegativeInteger("CALX_BENCH_PROCESS_WARMUP", quick ? 0 : 2);
@@ -32,6 +37,7 @@ const fullMatrix = [
   { kernel: "affine", sizes: [10, 1000] },
   { kernel: "polynomial", sizes: [10, 1000] },
   { kernel: "bounded-simulation", sizes: [10, 100, 1000] },
+  { kernel: "dot-product", sizes: [8, 64, 512, 4096] },
 ];
 const matrix = quick
   ? fullMatrix.map(({ kernel, sizes }) => ({ kernel, sizes: [sizes[0]] }))
@@ -121,7 +127,7 @@ function runCase(binary, kernel, size) {
     throw new Error(`benchmark failed for ${kernel}/${size}\n${result.stdout}\n${result.stderr}`);
   }
   const report = JSON.parse(result.stdout);
-  if (report.schema !== "calcit-calx-benchmark/2" || report.correctness !== true) {
+  if (report.schema !== "calcit-calx-benchmark/3" || report.correctness !== true) {
     throw new Error(`invalid or unverified benchmark report for ${kernel}/${size}`);
   }
   if (
@@ -134,6 +140,8 @@ function runCase(binary, kernel, size) {
     report.runtime?.cachedNativeResolutionNs,
     report.runtime?.cachedNativeExecutionTotalNs,
     report.runtime?.cachedNativeExecutionPerCallNs,
+    report.runtime?.boundaryArgumentsPerCallNs,
+    report.runtime?.hotWithBoundaryPerCallNs,
   ];
   if (!cachedNativeMetrics.every((value) => Number.isFinite(value) && value >= 0)) {
     throw new Error(`benchmark report lacks valid cached-native metrics for ${kernel}/${size}`);
@@ -164,6 +172,7 @@ function selectMetrics(sample) {
     fixtureInstallNs: report.fixtureInstallNs,
     calcitFrontendNs: report.calcitFrontendNs,
     snapshotCloneNs: report.snapshotCloneNs,
+    inputConstructionNs: report.input.constructionNs,
     eligibilityNs: report.compile.eligibilityNs,
     planningNs: report.compile.planningNs,
     programConstructionNs: report.compile.programConstructionNs,
@@ -174,12 +183,16 @@ function selectMetrics(sample) {
     cachedNativeExecutionTotalNs: report.runtime.cachedNativeExecutionTotalNs,
     cachedNativeExecutionPerCallNs: report.runtime.cachedNativeExecutionPerCallNs,
     boundaryArgumentsNs: report.runtime.boundaryArgumentsNs,
+    boundaryArgumentsTotalNs: report.runtime.boundaryArgumentsTotalNs,
+    boundaryArgumentsPerCallNs: report.runtime.boundaryArgumentsPerCallNs,
     vmSetupNs: report.runtime.vmSetupNs,
     pureExecutionNs: report.runtime.pureExecutionNs,
     boundaryResultNs: report.runtime.boundaryResultNs,
     calxOneShotNs: report.runtime.calxOneShotNs,
     hotExecutionTotalNs: report.runtime.hotExecutionTotalNs,
     hotExecutionPerCallNs: report.runtime.hotExecutionPerCallNs,
+    hotWithBoundaryTotalNs: report.runtime.hotWithBoundaryTotalNs,
+    hotWithBoundaryPerCallNs: report.runtime.hotWithBoundaryPerCallNs,
   };
 }
 
@@ -206,6 +219,8 @@ function aggregate(rawSamples) {
       calxEndToEndNs,
       calxHotVsLookupNativeRatio: medians.hotExecutionPerCallNs / medians.nativeCallNs,
       calxHotVsCachedNativeRatio: medians.hotExecutionPerCallNs / medians.cachedNativeExecutionPerCallNs,
+      calxHotWithBoundaryVsCachedNativeRatio:
+        medians.hotWithBoundaryPerCallNs / medians.cachedNativeExecutionPerCallNs,
       calxOneShotEndToEndVsLookupNativeRatio: calxEndToEndNs / lookupNativeEndToEndNs,
     },
   };
@@ -245,6 +260,10 @@ for (const profile of ["debug", "release"]) {
       kernel,
       calxHotVsLookupNativeSize: crossover(kernelCases, "calxHotVsLookupNativeRatio"),
       calxHotVsCachedNativeSize: crossover(kernelCases, "calxHotVsCachedNativeRatio"),
+      calxHotWithBoundaryVsCachedNativeSize: crossover(
+        kernelCases,
+        "calxHotWithBoundaryVsCachedNativeRatio",
+      ),
       calxOneShotEndToEndVsLookupNativeSize: crossover(
         kernelCases,
         "calxOneShotEndToEndVsLookupNativeRatio",
@@ -256,11 +275,12 @@ for (const profile of ["debug", "release"]) {
 
 const cpu = os.cpus()[0];
 const report = {
-  schema: "calcit-calx-benchmark-suite/2",
+  schema: "calcit-calx-benchmark-suite/3",
   generatedAt: new Date().toISOString(),
   scope: {
-    workload: "scalar-only",
-    typedBufferStatus: "not-measured-no-typed-buffer-abi",
+    workload: "scalar-and-typed-f64-buffer-read",
+    typedBufferStatus: "measured-copy-from-calcit-boundary",
+    unmeasuredTypedBufferOwnership: ["shared", "adopted"],
     wasmStatus: "not-measured-non-blocking-reference",
   },
   environment: {
@@ -279,7 +299,7 @@ const report = {
     calcitGitDirty: actualCalcitDirty,
     calcitSource: pins.calcit.repository,
     workloadRevision: actualCalcitCommit,
-    workloadSha256,
+    workloadSha256s,
     runnerOwnership: pins.runner.ownership,
     adapterStatus: pins.runner.adapterStatus,
   },
@@ -290,6 +310,8 @@ const report = {
     hotIterations,
     hotWarmupMeaning: "applied equally to the cached Calcit callable and reused Calx VM",
     cachedNativeMeaning: "resolved callable reused; scope setup, argument binding, and runner execution remain timed",
+    typedBufferBoundaryMeaning:
+      "copy-from-Calcit encoding is timed separately and together with reused-VM execution; shared/adopted ownership is not available through the pinned adapter",
     noiseStatistic: "median-and-median-absolute-deviation",
     processWallMeaning: "Node spawn wall time including process startup and all measured phases",
     regressionPolicy: "informational-no-absolute-ci-threshold",
@@ -307,6 +329,7 @@ for (const { profile, crossovers } of profiles) {
     console.log(
       `  ${item.kernel}: hot-vs-lookup=${item.calxHotVsLookupNativeSize ?? "none"}, ` +
         `hot-vs-cached=${item.calxHotVsCachedNativeSize ?? "none"}, ` +
+        `hot-with-boundary-vs-cached=${item.calxHotWithBoundaryVsCachedNativeSize ?? "none"}, ` +
         `one-shot-vs-lookup=${item.calxOneShotEndToEndVsLookupNativeSize ?? "none"}`,
     );
   }

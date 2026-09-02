@@ -15,7 +15,11 @@ compatibility promise. Every Calcit-pin or adapter-edition change must pass the 
 compile, all Rust/Node tests, pin checks, debug/release quick smoke, and the full matrix
 before measurement results are accepted.
 GitHub Actions runs that correctness-gated smoke on both Ubuntu and macOS. Reports
-record the exact workload revision and pinned source-fixture SHA-256.
+record the exact workload revision and every pinned source-fixture SHA-256. The
+matrix covers the original scalar corpus plus a typed `F64Buffer` dot product.
+Buffer reports separate input construction, copy-from-Calcit boundary encoding,
+reused-VM execution, and repeated boundary-plus-execution cost. Shared/adopted
+ownership is explicitly unmeasured because the pinned adapter does not expose it.
 
 ```bash
 git submodule update --init --checkout
@@ -47,7 +51,9 @@ preprocess/runtime 函数。adapter 不承诺 semver 兼容；每次修改 Calci
 通过 runner compile、全部 Rust/Node tests、pin checks、debug/release quick smoke 与 full matrix，
 才能接受新的测量结果。
 GitHub Actions 在 Ubuntu 与 macOS 上运行该 correctness-gated smoke；报告显式记录 workload
-revision 与固定 source fixture SHA-256。
+revision 与每份固定 source fixture 的 SHA-256。矩阵在原 scalar corpus 外加入 typed `F64Buffer`
+dot product，并分别测量输入构造、copy-from-Calcit 边界编码、复用 VM 执行，以及每次复制后执行的
+总成本。固定 adapter 尚未暴露 shared/adopted ownership，因此报告明确标为未测，而不作推断。
 
 standalone 验收与 Calcit core 切换由 [calcit#558](https://github.com/calcit-lang/calcit/issues/558)
 和 [calcit#559](https://github.com/calcit-lang/calcit/issues/559) 追踪。固定 adapter revision 上的

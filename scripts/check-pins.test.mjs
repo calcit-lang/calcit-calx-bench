@@ -23,7 +23,10 @@ test("the repository pins exact Calcit and calx-vm revisions", () => {
   assert.equal(pins.runner.ownership, "standalone-revision-pinned-runner");
   assert.equal(pins.runner.adapterStatus, "active-internal-revision-pinned");
   assert.equal(pins.runner.adapterEdition, "calcit-calx-benchmark-session/1");
-  assert.match(pins.workload.sha256, /^[0-9a-f]{64}$/u);
+  assert.deepEqual(Object.keys(pins.workloads).sort(), ["f64Buffer", "scalar"]);
+  for (const workload of Object.values(pins.workloads)) {
+    assert.match(workload.sha256, /^[0-9a-f]{64}$/u);
+  }
 });
 
 test("pin validation rejects an uninitialized submodule before reading the parent repository", () => {
@@ -59,7 +62,13 @@ test("runner boundary requires the adapter and rejects compiler internals", () =
 test("workload identity requires authoritative bytes and the pinned SHA-256", () => {
   const fixture = Buffer.from("fixture");
   const sha256 = "f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d";
-  assert.equal(verifyWorkload(fixture, Buffer.from("fixture"), sha256), sha256);
-  assert.throws(() => verifyWorkload(fixture, Buffer.from("changed"), sha256), /authoritative/u);
-  assert.throws(() => verifyWorkload(fixture, Buffer.from("fixture"), "0".repeat(64)), /SHA-256/u);
+  assert.equal(verifyWorkload("demo", fixture, Buffer.from("fixture"), sha256), sha256);
+  assert.throws(
+    () => verifyWorkload("demo", fixture, Buffer.from("changed"), sha256),
+    /authoritative/u,
+  );
+  assert.throws(
+    () => verifyWorkload("demo", fixture, Buffer.from("fixture"), "0".repeat(64)),
+    /SHA-256/u,
+  );
 });
