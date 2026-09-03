@@ -8,8 +8,9 @@ an **experimental benchmark/research product**, not a Calcit runtime feature,
 language correctness gate, or production dependency. This phase documents the
 contract and bootstrap inventory. The standalone repository has now been
 created and owns the runner that consumes the revision-pinned session adapter.
-The adapter landed on Calcit `main` as `42c2f339`; this harness pins that exact
-revision. Standalone CI, the complete 182-sample scalar reproduction, and the
+The adapter originally landed on Calcit `main` as `42c2f339`; this harness now pins
+Calcit `82a2b0e` with the typed F64Buffer adapter path and `calx_vm` 0.4.0.
+Standalone CI, the complete 182-sample scalar reproduction, and the
 core duplicate-asset cutover have completed. The adapter and backend semantics
 remain in core; benchmark product policy must not move back there.
 
@@ -17,7 +18,8 @@ remain in core; benchmark product policy must not move back there.
 追踪的第一阶段边界。该 harness 是**实验性 benchmark/research 产品**，不是 Calcit
 runtime 功能、语言正确性 gate 或生产依赖。本阶段只记录契约和 bootstrap inventory，
 独立仓库现已创建，并拥有消费 revision-pinned session adapter 的 runner；adapter 已作为
-`42c2f339` 合入 Calcit `main`，本仓库也固定到该 revision。standalone CI、完整 182-sample
+`42c2f339` 合入 Calcit `main`；本仓库现固定到包含 typed F64Buffer adapter 路径的 Calcit
+`82a2b0e` 与 `calx_vm` 0.4.0。standalone CI、完整 182-sample
 scalar reproduction 与 core 重复资产清理均已完成。adapter 和 backend 语义保留在 core，
 benchmark 产品策略不得迁回 core。
 
@@ -60,43 +62,43 @@ harness/schema 变化，每次测量必须固定精确的 Calcit 与 `calx-vm` r
 | `scripts/bench-calx-settings.mjs` and test | migrated | standalone harness | experiment-setting policy |
 | `docs/run/calx-benchmark.md` | methodology migrated; core retains only a short discovery link | standalone harness | measurement and comparison policy |
 | `benchmarks/calx/README.md` and versioned JSON | migrated without rewriting raw data | standalone harness | archive and bounded conclusions |
-| `tests/fixtures/calx/scalar-kernels.cirru` | copy with source revision and keep original | both, core authoritative | benchmark workload also serves differential correctness |
+| `tests/fixtures/calx/scalar-kernels.cirru` and `f64-buffer-kernel.cirru` | copy with source revision and keep originals | both, core authoritative | benchmark workloads also serve differential correctness |
 | `src/codegen/calx.rs`, `src/codegen/calx/lowering.rs` | stay | Calcit core | backend semantics and typed boundary |
 | `src/program/tests.rs` Calx tests | stay | Calcit core | eligibility, golden, trap, fallback, and differential correctness |
 | all `tests/fixtures/calx/*.golden.txt`, `fallback.cirru`, `typed-imports.cirru` | stay | Calcit core | language/backend correctness, not benchmark policy |
 | `Cargo.toml` binary entry and `package.json` benchmark scripts/check | removed by #559 | standalone harness | standalone reproduction completed before cutover |
 
-The scalar source fixture is deliberately the only shared/copy-with-provenance
-asset. The standalone copy records its originating Calcit commit and must not
+The scalar and F64Buffer source fixtures are deliberately the only shared/copy-with-provenance
+assets. The standalone copies record their originating Calcit commit and must not
 become the correctness source of truth. Golden and fallback fixtures do not
 move.
 
-scalar source fixture 是唯一明确允许 copy-with-provenance 的共享资产。独立仓库副本必须记录
+scalar 与 F64Buffer source fixtures 是唯一明确允许 copy-with-provenance 的共享资产。独立仓库副本必须记录
 来源 Calcit commit，不能成为 correctness source of truth；golden 与 fallback fixtures 不迁移。
 
 ## Frozen report and process contract / 固化的报告与进程契约
 
 - A successful single-case runner writes exactly one JSON value to stdout with
-  schema `calcit-calx-benchmark/2`; progress and diagnostics never share stdout.
-- A successful suite writes schema `calcit-calx-benchmark-suite/2` and preserves
+  schema `calcit-calx-benchmark/3`; progress and diagnostics never share stdout.
+- A successful suite writes schema `calcit-calx-benchmark-suite/3` and preserves
   every `rawSamples` entry in addition to median and median absolute deviation.
 - Parse, build, correctness, schema, and runtime failures go to stderr and exit
   nonzero. Partial JSON is never reported as success.
 - Reports retain debug/release profile, OS/architecture/CPU/memory, complete
   Rust/Cargo/Node identity, exact Calcit commit plus dirty state, resolved
-  `calx-vm` version, workload revision and SHA-256, matrix/settings, warm-up policy,
+  `calx-vm` version, workload revision and every fixture SHA-256, matrix/settings, warm-up policy,
   and scope gaps.
 - Archived raw reports are immutable. A schema change creates a new schema ID
   and migration note rather than rewriting old files.
 - Ratios and crossover points are informational. Machine-specific absolute
   thresholds do not enter ordinary Calcit correctness CI.
 
-- 单 case 成功时 stdout 只写一个 `calcit-calx-benchmark/2` JSON；进度和诊断不混入 stdout。
-- suite 成功时写 `calcit-calx-benchmark-suite/2`，在 median 与 MAD 之外保留全部
+- 单 case 成功时 stdout 只写一个 `calcit-calx-benchmark/3` JSON；进度和诊断不混入 stdout。
+- suite 成功时写 `calcit-calx-benchmark-suite/3`，在 median 与 MAD 之外保留全部
   `rawSamples`。
 - parse/build/correctness/schema/runtime 失败写 stderr 并非零退出，不把 partial JSON 当成功结果。
 - 报告保留 profile、主机/工具链、精确 Calcit commit 与 dirty 状态、resolved `calx-vm`
-  版本、workload revision/SHA-256、matrix/settings、预热政策和未覆盖范围。
+  版本、workload revision、每个 fixture 的 SHA-256、matrix/settings、预热政策和未覆盖范围。
 - 已归档 raw report 不可改写；schema 变化使用新 ID 和 migration note。
 - ratio/crossover 只提供信息，不把机器相关绝对阈值加入普通 correctness CI。
 
@@ -150,13 +152,13 @@ runner compile、全部 Rust/Node tests、pin checks、debug/release quick smoke
 | full debug/release matrix | manual/versioned evidence workflow | not a correctness gate |
 
 The phase-two bootstrap met its acceptance gate: the standalone harness builds
-against the final merged Calcit revision, passes all six runner tests and nine
-Node tests, emits schema-v2 reports with raw samples, links its README/AGENTS
+against the final merged adapter revision, passed all six phase-two runner tests and nine
+Node tests, emitted schema-v2 reports with raw samples, linked its README/AGENTS
 boundaries back to `#547/#558`, passes dual-platform CI, and completes the
 182-sample clean-state matrix. Issue #559 therefore removed the duplicate core
 binary and policy checks.
 
-第二阶段已通过验收：独立 harness 固定已合入的最终 Calcit revision，通过 6 项 runner tests 与
+第二阶段已通过验收：独立 harness 固定当时已合入的 adapter revision，通过 6 项 phase-two runner tests 与
 9 项 Node tests，输出保留 raw samples 的 schema-v2 report，在 README/AGENTS 回链
 `#547`/`#558`，通过双平台 CI，并完成 clean-state 182-sample matrix。因此 `#559` 已删除
 core 中重复的 binary 和 policy checks。

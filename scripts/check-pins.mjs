@@ -49,13 +49,13 @@ export function verifyRunnerBoundary(source) {
   }
 }
 
-export function verifyWorkload(source, authoritative, expectedSha256) {
+export function verifyWorkload(name, source, authoritative, expectedSha256) {
   if (!source.equals(authoritative)) {
-    throw new Error("standalone scalar fixture differs from the pinned authoritative Calcit fixture");
+    throw new Error(`standalone ${name} fixture differs from the pinned authoritative Calcit fixture`);
   }
   const actualSha256 = createHash("sha256").update(source).digest("hex");
   if (actualSha256 !== expectedSha256) {
-    throw new Error(`standalone scalar fixture SHA-256 is ${actualSha256}, expected ${expectedSha256}`);
+    throw new Error(`standalone ${name} fixture SHA-256 is ${actualSha256}, expected ${expectedSha256}`);
   }
   return actualSha256;
 }
@@ -89,9 +89,11 @@ export function verifyPins(repoRoot) {
   }
   readFileSync(path.join(repoRoot, pins.runner.manifest), "utf8");
   verifyRunnerBoundary(readFileSync(path.join(repoRoot, pins.runner.source), "utf8"));
-  const standaloneFixture = readFileSync(path.join(repoRoot, pins.workload.path));
-  const authoritativeFixture = readFileSync(path.join(repoRoot, pins.workload.authoritativePath));
-  verifyWorkload(standaloneFixture, authoritativeFixture, pins.workload.sha256);
+  for (const [name, workload] of Object.entries(pins.workloads)) {
+    const standaloneFixture = readFileSync(path.join(repoRoot, workload.path));
+    const authoritativeFixture = readFileSync(path.join(repoRoot, workload.authoritativePath));
+    verifyWorkload(name, standaloneFixture, authoritativeFixture, workload.sha256);
+  }
   return pins;
 }
 
