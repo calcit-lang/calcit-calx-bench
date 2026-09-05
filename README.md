@@ -35,6 +35,9 @@ crossover points are informational and never become machine-specific correctness
 
 For separate execution allocation windows and published-VM baseline provenance, see
 [Execution allocation profile](docs/execution-profile.md).
+For the unreleased tail-call locals reuse comparison, see the
+[paired methodology](docs/tail-call-comparison.md) and
+[reviewable results](benchmarks/calx/20260906-tail-call-comparison.md).
 
 The standalone acceptance and Calcit core cutover are tracked by
 [calcit#558](https://github.com/calcit-lang/calcit/issues/558) and
@@ -64,6 +67,8 @@ standalone 验收与 Calcit core 切换由 [calcit#558](https://github.com/calci
 报告和产品 contract；Calx lowering、cache/runtime 语义与 correctness 仍保留在 core。
 
 执行分配窗口、已发布 VM 基线与复现方法见[执行分配 profile](docs/execution-profile.md)。
+尚未发布的尾调 locals 复用对照见[配对方法](docs/tail-call-comparison.md)与
+[结果摘要](benchmarks/calx/20260906-tail-call-comparison.md)。
 
 追踪关系：[calcit#547](https://github.com/calcit-lang/calcit/issues/547)、
 [calcit#558](https://github.com/calcit-lang/calcit/issues/558)、

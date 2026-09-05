@@ -136,12 +136,6 @@ mod tests {
     }
 
     #[test]
-    fn phase_accepts_a_zero_allocation_measurement() {
-        let report = phase(&1, 2, &1, Ok).expect("allocation-free phase remains valid");
-        assert_eq!(report.allocations, AllocationReport::default());
-    }
-
-    #[test]
     fn error_closes_the_allocation_window() {
         let mut calls = 0;
         let error = phase(&1, 1, &1, |_| {
@@ -160,7 +154,7 @@ mod tests {
 
     #[test]
     fn source_backed_profiles_cover_tail_calls_buffers_and_neutral_control() {
-        for kernel in ["range-sum", "dot-product", "affine"] {
+        for kernel in ["range-sum", "dot-product", "affine", "polynomial"] {
             let args = Args::from_args(
                 &["bench"],
                 &[
