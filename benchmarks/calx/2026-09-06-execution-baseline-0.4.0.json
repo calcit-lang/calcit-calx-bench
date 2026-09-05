@@ -1,0 +1,5378 @@
+{
+  "schema": "calcit-calx-execution-profile-suite/1",
+  "generatedAt": "2026-09-05T17:30:53.298Z",
+  "harness": {
+    "commit": "c3a0ae73c93774a3bcf75350b66dc37339966996",
+    "dirty": false
+  },
+  "calcit": {
+    "commit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+    "dirty": false
+  },
+  "calxVm": {
+    "version": "0.4.0",
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "packageId": "registry+https://github.com/rust-lang/crates.io-index#calx_vm@0.4.0"
+  },
+  "adapterEdition": "calcit-calx-benchmark-session/1",
+  "runnerLockSha256": "8090691ac5caa2422cdbaae640b5dae99db3477f58621fd07a03b2e27e8b8c12",
+  "fixtureSha256s": {
+    "scalar": "41cee117f4e5f75d7ee6c5b92b845ab180cae0b66058c0c54614e6dda9ebf771",
+    "f64Buffer": "ec2ae79f248386169c4c6f43d43b8dedee9f51e62432554d1be905e75f8dbf9a"
+  },
+  "environment": {
+    "platform": "darwin",
+    "release": "25.6.0",
+    "architecture": "arm64",
+    "cpu": "Apple M1 Pro",
+    "logicalCpus": 8,
+    "memoryBytes": 17179869184,
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: aarch64-apple-darwin\nrelease: 1.97.1\nLLVM version: 22.1.6",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "node": "v20.10.0"
+  },
+  "methodology": {
+    "iterations": 100,
+    "warmup": 20,
+    "samples": 7,
+    "processWarmup": 0,
+    "timing": "allocator counting disabled; separate allocation pass after timing",
+    "pure": "pre-encoded inputs; reused VM; includes run reset and consumed argument/result handling",
+    "boundary": "preconstructed Calcit inputs; encode/copy, reused VM run, decode; excludes compilation and VM instantiation",
+    "limits": "aggregate allocator calls, not exclusive ReturnCall attribution; requested bytes are not live/retained heap; no stack sampling or inclusive-stack attribution; no end-to-end improvement claim"
+  },
+  "commands": [
+    {
+      "command": "cargo",
+      "args": [
+        "metadata",
+        "--manifest-path",
+        "runner/Cargo.toml",
+        "--locked",
+        "--format-version",
+        "1"
+      ]
+    },
+    {
+      "command": "cargo",
+      "args": [
+        "build",
+        "--manifest-path",
+        "runner/Cargo.toml",
+        "--locked",
+        "--bin",
+        "calcit-calx-bench",
+        "--message-format=json-render-diagnostics"
+      ]
+    },
+    {
+      "command": "cargo",
+      "args": [
+        "build",
+        "--manifest-path",
+        "runner/Cargo.toml",
+        "--locked",
+        "--bin",
+        "calcit-calx-bench",
+        "--message-format=json-render-diagnostics",
+        "--release"
+      ]
+    }
+  ],
+  "matrix": [
+    {
+      "kernel": "range-sum",
+      "sizes": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "kernel": "dot-product",
+      "sizes": [
+        8,
+        64,
+        512,
+        4096
+      ]
+    },
+    {
+      "kernel": "affine",
+      "sizes": [
+        10,
+        1000
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "profile": "debug",
+      "binarySha256": "6f6f7c40aac119d2173e669fafd93258d89cc145448d1319530a019a8f7e2e65",
+      "cases": [
+        {
+          "kernel": "range-sum",
+          "size": 10,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/debug/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "range-sum",
+              "--size",
+              "10",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 950667,
+                "perCallNs": 9506,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1751959,
+                "perCallNs": 17519,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1992583,
+                "perCallNs": 19925,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1891917,
+                "perCallNs": 18919,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1521292,
+                "perCallNs": 15212,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1461042,
+                "perCallNs": 14610,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1238750,
+                "perCallNs": 12387,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1303250,
+                "perCallNs": 13032,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1136792,
+                "perCallNs": 11367,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1245750,
+                "perCallNs": 12457,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1161209,
+                "perCallNs": 11612,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1110750,
+                "perCallNs": 11107,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 996958,
+                "perCallNs": 9969,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1041417,
+                "perCallNs": 10414,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "range-sum",
+          "size": 100,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/debug/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "range-sum",
+              "--size",
+              "100",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 8869167,
+                "perCallNs": 88691,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 8929667,
+                "perCallNs": 89296,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 8759167,
+                "perCallNs": 87591,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9104916,
+                "perCallNs": 91049,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 9099125,
+                "perCallNs": 90991,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9326750,
+                "perCallNs": 93267,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 9113084,
+                "perCallNs": 91130,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9432625,
+                "perCallNs": 94326,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 9006833,
+                "perCallNs": 90068,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9463958,
+                "perCallNs": 94639,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 9192208,
+                "perCallNs": 91922,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9289375,
+                "perCallNs": 92893,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 9057125,
+                "perCallNs": 90571,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9322125,
+                "perCallNs": 93221,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "range-sum",
+          "size": 1000,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/debug/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "range-sum",
+              "--size",
+              "1000",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 90412916,
+                "perCallNs": 904129,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 90024625,
+                "perCallNs": 900246,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 96784166,
+                "perCallNs": 967841,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 89549417,
+                "perCallNs": 895494,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 88452167,
+                "perCallNs": 884521,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 90187875,
+                "perCallNs": 901878,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 89191083,
+                "perCallNs": 891910,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 90128917,
+                "perCallNs": 901289,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 88812125,
+                "perCallNs": 888121,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 89064209,
+                "perCallNs": 890642,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 88824209,
+                "perCallNs": 888242,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 89553041,
+                "perCallNs": 895530,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 90656750,
+                "perCallNs": 906567,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 89897833,
+                "perCallNs": 898978,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "dot-product",
+          "size": 8,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/debug/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "dot-product",
+              "--size",
+              "8",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1311084,
+                "perCallNs": 13110,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1433541,
+                "perCallNs": 14335,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1336542,
+                "perCallNs": 13365,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1465000,
+                "perCallNs": 14650,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1484917,
+                "perCallNs": 14849,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1704292,
+                "perCallNs": 17042,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1455333,
+                "perCallNs": 14553,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1453542,
+                "perCallNs": 14535,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1362833,
+                "perCallNs": 13628,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1441167,
+                "perCallNs": 14411,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1309958,
+                "perCallNs": 13099,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1433750,
+                "perCallNs": 14337,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1343625,
+                "perCallNs": 13436,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1443417,
+                "perCallNs": 14434,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "dot-product",
+          "size": 64,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/debug/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "dot-product",
+              "--size",
+              "64",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 10201834,
+                "perCallNs": 102018,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 10396000,
+                "perCallNs": 103960,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 10232291,
+                "perCallNs": 102322,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 10329417,
+                "perCallNs": 103294,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 10152334,
+                "perCallNs": 101523,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 10490209,
+                "perCallNs": 104902,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 10167708,
+                "perCallNs": 101677,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 10382375,
+                "perCallNs": 103823,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 10443916,
+                "perCallNs": 104439,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 10554667,
+                "perCallNs": 105546,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 10284125,
+                "perCallNs": 102841,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 10339375,
+                "perCallNs": 103393,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 10060917,
+                "perCallNs": 100609,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 10363166,
+                "perCallNs": 103631,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "dot-product",
+          "size": 512,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/debug/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "dot-product",
+              "--size",
+              "512",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 82689666,
+                "perCallNs": 826896,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 81484167,
+                "perCallNs": 814841,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 81136500,
+                "perCallNs": 811365,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 81585666,
+                "perCallNs": 815856,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 82473417,
+                "perCallNs": 824734,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 81772208,
+                "perCallNs": 817722,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 81669458,
+                "perCallNs": 816694,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 81561000,
+                "perCallNs": 815610,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 81170875,
+                "perCallNs": 811708,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 81793708,
+                "perCallNs": 817937,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 81210667,
+                "perCallNs": 812106,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 81697834,
+                "perCallNs": 816978,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 85171291,
+                "perCallNs": 851712,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 81717416,
+                "perCallNs": 817174,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "dot-product",
+          "size": 4096,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/debug/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "dot-product",
+              "--size",
+              "4096",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 653664291,
+                "perCallNs": 6536642,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 658132083,
+                "perCallNs": 6581320,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 651130250,
+                "perCallNs": 6511302,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 743601542,
+                "perCallNs": 7436015,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 648883083,
+                "perCallNs": 6488830,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 658785500,
+                "perCallNs": 6587855,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 666817666,
+                "perCallNs": 6668176,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 656705917,
+                "perCallNs": 6567059,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 651400542,
+                "perCallNs": 6514005,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 701160250,
+                "perCallNs": 7011602,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 668003250,
+                "perCallNs": 6680032,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 766854667,
+                "perCallNs": 7668546,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 654937916,
+                "perCallNs": 6549379,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 661321250,
+                "perCallNs": 6613212,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "affine",
+          "size": 10,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/debug/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "affine",
+              "--size",
+              "10",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 126625,
+                "perCallNs": 1266,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 151167,
+                "perCallNs": 1511,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 102291,
+                "perCallNs": 1022,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 150166,
+                "perCallNs": 1501,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 100125,
+                "perCallNs": 1001,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 146958,
+                "perCallNs": 1469,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 99291,
+                "perCallNs": 992,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 151250,
+                "perCallNs": 1512,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 99375,
+                "perCallNs": 993,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 148791,
+                "perCallNs": 1487,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 106750,
+                "perCallNs": 1067,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 161167,
+                "perCallNs": 1611,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 101958,
+                "perCallNs": 1019,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 152250,
+                "perCallNs": 1522,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "affine",
+          "size": 1000,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/debug/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "affine",
+              "--size",
+              "1000",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 99500,
+                "perCallNs": 995,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 151667,
+                "perCallNs": 1516,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 105792,
+                "perCallNs": 1057,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 146042,
+                "perCallNs": 1460,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 105791,
+                "perCallNs": 1057,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 152292,
+                "perCallNs": 1522,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 99916,
+                "perCallNs": 999,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 150875,
+                "perCallNs": 1508,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 99250,
+                "perCallNs": 992,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 148084,
+                "perCallNs": 1480,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 102708,
+                "perCallNs": 1027,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 150083,
+                "perCallNs": 1500,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "debug",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 100167,
+                "perCallNs": 1001,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 151584,
+                "perCallNs": 1515,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "profile": "release",
+      "binarySha256": "ab66a8601666662859189351b0b405a50ff2537576fe0bf6aca53dac3c8d1c37",
+      "cases": [
+        {
+          "kernel": "range-sum",
+          "size": 10,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/release/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "range-sum",
+              "--size",
+              "10",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 117541,
+                "perCallNs": 1175,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 140458,
+                "perCallNs": 1404,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 100916,
+                "perCallNs": 1009,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 108167,
+                "perCallNs": 1081,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 103958,
+                "perCallNs": 1039,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 110750,
+                "perCallNs": 1107,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 119959,
+                "perCallNs": 1199,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 152958,
+                "perCallNs": 1529,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 105625,
+                "perCallNs": 1056,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 113208,
+                "perCallNs": 1132,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 110250,
+                "perCallNs": 1102,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 119250,
+                "perCallNs": 1192,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 110458,
+                "perCallNs": 1104,
+                "allocations": {
+                  "allocationCalls": 1000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1100,
+                  "requestedBytes": 48000,
+                  "explicitlyDeallocatedBytes": 52800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 112875,
+                "perCallNs": 1128,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 57600,
+                  "explicitlyDeallocatedBytes": 75200
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "range-sum",
+          "size": 100,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/release/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "range-sum",
+              "--size",
+              "100",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 978334,
+                "perCallNs": 9783,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 959042,
+                "perCallNs": 9590,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 950459,
+                "perCallNs": 9504,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 953041,
+                "perCallNs": 9530,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 959917,
+                "perCallNs": 9599,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 926959,
+                "perCallNs": 9269,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 948083,
+                "perCallNs": 9480,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 925250,
+                "perCallNs": 9252,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 924250,
+                "perCallNs": 9242,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 943917,
+                "perCallNs": 9439,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 949875,
+                "perCallNs": 9498,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 962250,
+                "perCallNs": 9622,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 100,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 952583,
+                "perCallNs": 9525,
+                "allocations": {
+                  "allocationCalls": 10000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10100,
+                  "requestedBytes": 480000,
+                  "explicitlyDeallocatedBytes": 484800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 990208,
+                "perCallNs": 9902,
+                "allocations": {
+                  "allocationCalls": 10100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 10200,
+                  "requestedBytes": 489600,
+                  "explicitlyDeallocatedBytes": 507200
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "range-sum",
+          "size": 1000,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/release/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "range-sum",
+              "--size",
+              "1000",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 9328833,
+                "perCallNs": 93288,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9431167,
+                "perCallNs": 94311,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 9413541,
+                "perCallNs": 94135,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9404709,
+                "perCallNs": 94047,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 9494792,
+                "perCallNs": 94947,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9501500,
+                "perCallNs": 95015,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 9455542,
+                "perCallNs": 94555,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9675625,
+                "perCallNs": 96756,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 9498792,
+                "perCallNs": 94987,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9446083,
+                "perCallNs": 94460,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 9449500,
+                "perCallNs": 94495,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9474250,
+                "perCallNs": 94742,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "range-sum",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 9540750,
+                "perCallNs": 95407,
+                "allocations": {
+                  "allocationCalls": 100000,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100100,
+                  "requestedBytes": 4800000,
+                  "explicitlyDeallocatedBytes": 4804800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 9534750,
+                "perCallNs": 95347,
+                "allocations": {
+                  "allocationCalls": 100100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 100200,
+                  "requestedBytes": 4809600,
+                  "explicitlyDeallocatedBytes": 4827200
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "dot-product",
+          "size": 8,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/release/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "dot-product",
+              "--size",
+              "8",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 130792,
+                "perCallNs": 1307,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 141834,
+                "perCallNs": 1418,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 132416,
+                "perCallNs": 1324,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 145333,
+                "perCallNs": 1453,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 129708,
+                "perCallNs": 1297,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 141791,
+                "perCallNs": 1417,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 132458,
+                "perCallNs": 1324,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 144709,
+                "perCallNs": 1447,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 133625,
+                "perCallNs": 1336,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 141750,
+                "perCallNs": 1417,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 129667,
+                "perCallNs": 1296,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 142667,
+                "perCallNs": 1426,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 8,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 141500,
+                "perCallNs": 1415,
+                "allocations": {
+                  "allocationCalls": 800,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 900,
+                  "requestedBytes": 76800,
+                  "explicitlyDeallocatedBytes": 86400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 170334,
+                "perCallNs": 1703,
+                "allocations": {
+                  "allocationCalls": 1100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 1200,
+                  "requestedBytes": 102400,
+                  "explicitlyDeallocatedBytes": 137600
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "dot-product",
+          "size": 64,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/release/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "dot-product",
+              "--size",
+              "64",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1056292,
+                "perCallNs": 10562,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1184166,
+                "perCallNs": 11841,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1085917,
+                "perCallNs": 10859,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1004333,
+                "perCallNs": 10043,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1045250,
+                "perCallNs": 10452,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1128250,
+                "perCallNs": 11282,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1062125,
+                "perCallNs": 10621,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1129792,
+                "perCallNs": 11297,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1090792,
+                "perCallNs": 10907,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1015958,
+                "perCallNs": 10159,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1080292,
+                "perCallNs": 10802,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1005459,
+                "perCallNs": 10054,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 64,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 1067375,
+                "perCallNs": 10673,
+                "allocations": {
+                  "allocationCalls": 6400,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6500,
+                  "requestedBytes": 614400,
+                  "explicitlyDeallocatedBytes": 624000
+                }
+              },
+              "withBoundary": {
+                "totalNs": 1000958,
+                "perCallNs": 10009,
+                "allocations": {
+                  "allocationCalls": 6700,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 6800,
+                  "requestedBytes": 729600,
+                  "explicitlyDeallocatedBytes": 764800
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "dot-product",
+          "size": 512,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/release/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "dot-product",
+              "--size",
+              "512",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 8254375,
+                "perCallNs": 82543,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 8117666,
+                "perCallNs": 81176,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 8283459,
+                "perCallNs": 82834,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 8035083,
+                "perCallNs": 80350,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 8221959,
+                "perCallNs": 82219,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 8145791,
+                "perCallNs": 81457,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 7995667,
+                "perCallNs": 79956,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 8015375,
+                "perCallNs": 80153,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 8024875,
+                "perCallNs": 80248,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 8210000,
+                "perCallNs": 82100,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 8144250,
+                "perCallNs": 81442,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 7988916,
+                "perCallNs": 79889,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 512,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 8192125,
+                "perCallNs": 81921,
+                "allocations": {
+                  "allocationCalls": 51200,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51300,
+                  "requestedBytes": 4915200,
+                  "explicitlyDeallocatedBytes": 4924800
+                }
+              },
+              "withBoundary": {
+                "totalNs": 8142292,
+                "perCallNs": 81422,
+                "allocations": {
+                  "allocationCalls": 51500,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 51600,
+                  "requestedBytes": 5747200,
+                  "explicitlyDeallocatedBytes": 5782400
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "dot-product",
+          "size": 4096,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/release/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "dot-product",
+              "--size",
+              "4096",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 64360875,
+                "perCallNs": 643608,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 64808750,
+                "perCallNs": 648087,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 64224500,
+                "perCallNs": 642245,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 64821875,
+                "perCallNs": 648218,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 64320083,
+                "perCallNs": 643200,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 64582667,
+                "perCallNs": 645826,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 64428291,
+                "perCallNs": 644282,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 64525458,
+                "perCallNs": 645254,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 64568750,
+                "perCallNs": 645687,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 64489208,
+                "perCallNs": 644892,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 64423083,
+                "perCallNs": 644230,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 64636666,
+                "perCallNs": 646366,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "dot-product",
+              "size": 4096,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 64418334,
+                "perCallNs": 644183,
+                "allocations": {
+                  "allocationCalls": 409600,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 409700,
+                  "requestedBytes": 39321600,
+                  "explicitlyDeallocatedBytes": 39331200
+                }
+              },
+              "withBoundary": {
+                "totalNs": 64775500,
+                "perCallNs": 647755,
+                "allocations": {
+                  "allocationCalls": 409900,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 410000,
+                  "requestedBytes": 45888000,
+                  "explicitlyDeallocatedBytes": 45923200
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "affine",
+          "size": 10,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/release/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "affine",
+              "--size",
+              "10",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 12125,
+                "perCallNs": 121,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13625,
+                "perCallNs": 136,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 11792,
+                "perCallNs": 117,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13333,
+                "perCallNs": 133,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 12167,
+                "perCallNs": 121,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13375,
+                "perCallNs": 133,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 12042,
+                "perCallNs": 120,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13375,
+                "perCallNs": 133,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 12125,
+                "perCallNs": 121,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13417,
+                "perCallNs": 134,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 12083,
+                "perCallNs": 120,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13459,
+                "perCallNs": 134,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 10,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 12125,
+                "perCallNs": 121,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13083,
+                "perCallNs": 130,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            }
+          ]
+        },
+        {
+          "kernel": "affine",
+          "size": 1000,
+          "command": {
+            "command": "/private/tmp/calx-tail-20260906.wXaFCZ/calcit-calx-bench/runner/target/release/calcit-calx-bench",
+            "args": [
+              "--kernel",
+              "affine",
+              "--size",
+              "1000",
+              "--vm-warmup",
+              "20",
+              "--execution-profile-iterations",
+              "100"
+            ]
+          },
+          "rawSamples": [
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 12250,
+                "perCallNs": 122,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13750,
+                "perCallNs": 137,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 12292,
+                "perCallNs": 122,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13625,
+                "perCallNs": 136,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 11709,
+                "perCallNs": 117,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13541,
+                "perCallNs": 135,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 12334,
+                "perCallNs": 123,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13750,
+                "perCallNs": 137,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 12000,
+                "perCallNs": 120,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13667,
+                "perCallNs": 136,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 11792,
+                "perCallNs": 117,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 27666,
+                "perCallNs": 276,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            },
+            {
+              "schema": "calcit-calx-execution-profile/1",
+              "environment": {
+                "packageVersion": "0.13.75",
+                "calcitGitCommit": "82a2b0e87051c4d3125a95804b76637e26d7ecf2",
+                "calcitGitDirty": false,
+                "calxVmVersion": "0.4.0",
+                "profile": "release",
+                "os": "macos",
+                "architecture": "aarch64"
+              },
+              "kernel": "affine",
+              "size": 1000,
+              "warmupIterations": 20,
+              "measuredIterations": 100,
+              "pureExecution": {
+                "totalNs": 12167,
+                "perCallNs": 121,
+                "allocations": {
+                  "allocationCalls": 0,
+                  "reallocationCalls": 100,
+                  "deallocationCalls": 100,
+                  "requestedBytes": 14400,
+                  "explicitlyDeallocatedBytes": 14400
+                }
+              },
+              "withBoundary": {
+                "totalNs": 13375,
+                "perCallNs": 133,
+                "allocations": {
+                  "allocationCalls": 100,
+                  "reallocationCalls": 0,
+                  "deallocationCalls": 200,
+                  "requestedBytes": 9600,
+                  "explicitlyDeallocatedBytes": 36000
+                }
+              },
+              "correctness": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
