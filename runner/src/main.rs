@@ -317,7 +317,7 @@ struct CacheProfileReport {
     correctness: bool,
 }
 
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Default, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct AllocationReport {
     allocation_calls: u64,
