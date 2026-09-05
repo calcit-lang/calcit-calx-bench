@@ -1,1 +1,2 @@
-benchmarks/calx/*.json -diff linguist-generated
+# Selected immutable evidence only; review its Markdown summary, not generated samples.
+benchmarks/calx/*.json -diff linguist-generated=true

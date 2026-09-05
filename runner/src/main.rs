@@ -20,6 +20,8 @@ use calcit::codegen::calx::benchmark_session::{
 use calcit::codegen::calx::{CalxCompileCache, CalxHostImports};
 use serde::Serialize;
 
+mod execution_profile;
+
 const SCALAR_FIXTURE_NAMESPACE: &str = "bench.calx-kernels";
 const F64_BUFFER_FIXTURE_NAMESPACE: &str = "bench.calx-f64-buffer";
 const CARGO_LOCK: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/Cargo.lock"));
@@ -149,6 +151,10 @@ struct Args {
     /// cache-hit preparations discarded before cache profile measurement
     #[argh(option, default = "100")]
     cache_profile_warmup: u32,
+
+    /// execution timing and separate allocation windows; zero disables execution profiling
+    #[argh(option, default = "0")]
+    execution_profile_iterations: u32,
 }
 
 #[derive(Debug, Serialize)]
@@ -1043,13 +1049,25 @@ fn measure(args: &Args) -> Result<BenchmarkReport, String> {
 /// Emit exactly one JSON report on success and keep failures on stderr.
 fn main() {
     let args: Args = argh::from_env();
-    let report = if args.compile_profile_iterations > 0 && args.cache_profile_iterations > 0 {
-        Err("compile profile mode and cache profile mode are mutually exclusive".to_owned())
+    let report = if [
+        args.compile_profile_iterations,
+        args.cache_profile_iterations,
+        args.execution_profile_iterations,
+    ]
+    .into_iter()
+    .filter(|count| *count > 0)
+    .count()
+        > 1
+    {
+        Err("compile, cache and execution profile modes are mutually exclusive".to_owned())
     } else if args.compile_profile_iterations > 0 {
         measure_compile_profile(&args)
             .and_then(|report| serde_json::to_string(&report).map_err(|error| error.to_string()))
     } else if args.cache_profile_iterations > 0 {
         measure_cache_profile(&args)
+            .and_then(|report| serde_json::to_string(&report).map_err(|error| error.to_string()))
+    } else if args.execution_profile_iterations > 0 {
+        execution_profile::measure(&args)
             .and_then(|report| serde_json::to_string(&report).map_err(|error| error.to_string()))
     } else {
         measure(&args)
@@ -1158,6 +1176,7 @@ mod tests {
             compile_profile_allocation_iterations: 1,
             cache_profile_iterations: 0,
             cache_profile_warmup: 0,
+            execution_profile_iterations: 0,
         })
         .expect("measure typed F64Buffer dot product");
 
@@ -1185,6 +1204,7 @@ mod tests {
             compile_profile_allocation_iterations: 2,
             cache_profile_iterations: 0,
             cache_profile_warmup: 0,
+            execution_profile_iterations: 0,
         })
         .expect("measure repeated complete compilation");
 
@@ -1221,6 +1241,7 @@ mod tests {
             compile_profile_allocation_iterations: 1,
             cache_profile_iterations: 2,
             cache_profile_warmup: 1,
+            execution_profile_iterations: 0,
         })
         .expect("measure revision-safe cache hits");
 
