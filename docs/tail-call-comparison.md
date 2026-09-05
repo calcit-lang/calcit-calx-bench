@@ -18,9 +18,10 @@ manifest、lockfile、pins 保持有效。两端均标为 `unreleased`，manifes
 不能代表已发布的 revision。Cargo metadata 必须解析到指定 VM；依赖版本、feature 和边
 必须一致，才允许测量。临时产物保留以便排错，可在不使用后自行清理。
 
-默认 debug/release，各有 range-sum 10/1000、dot-product 8/4096、affine 10/1000。
+默认 debug/release，各有 range-sum 10/1000、dot-product 8/4096、affine 10/1000、polynomial 10/1000。
+affine 只有一次 helper 尾调；polynomial 不包含函数调用，才是无尾调对照。
 每 case 7 对独立进程交替 before/after 顺序，20 warmup、100 次 timing 与另外 100 次
-allocation 窗口，共 168 个原始报告。构建先全部完成，采样使用已复制且校验哈希的固定
+allocation 窗口，共 224 个原始报告。构建先全部完成，采样使用已复制且校验哈希的固定
 binary。JSON 保留原始单报告、median/MAD、命令、clean revision、adapter edition、
 解析依赖图、lock/fixture/binary SHA-256 与机器/工具链。
 
@@ -47,13 +48,17 @@ unreleased; manifest version 0.4.0 is not their published identity. Metadata mus
 resolve the requested checkout, with equal dependency versions, features and edges.
 Temporary artifacts remain for diagnosis. Formal manifests, locks and pins stay intact.
 
-Defaults produce 168 reports: two build profiles, six cases, seven paired fresh
+Defaults produce 224 reports: two build profiles, eight cases, seven paired fresh
 processes per case, twenty warmups and one hundred calls in each timing/counting pass.
 All builds finish before sampling; copied executables are hashed and pairs alternate
 execution order. Raw reports, median/MAD, commands, source identities, adapter edition,
 resolved graph, hashes and environment remain available. The four environment settings
 above control counts/output, with immutable output files. Routine reports stay under
 target; only reviewed representative evidence belongs in the generated/no-diff archive.
+
+Affine contains one helper tail call, independent of size. Polynomial contains no
+function calls and is the neutral control. Keep both to distinguish single-call
+cost from repeated tail recursion and unrelated execution.
 
 Allocation counts are per kernel call. Timing/counting and pure/boundary windows use
 the existing execution-profile definitions. Preserve neutral or regressing cases,

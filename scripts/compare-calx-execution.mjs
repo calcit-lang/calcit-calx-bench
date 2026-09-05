@@ -81,7 +81,12 @@ for (let variant = 0; variant < 2; variant += 1) {
     derivedLockSha256: hash(lock), binaryHashes });
 }
 
-const matrix = [{ kernel: "range-sum", sizes: [10, 1000] }, { kernel: "dot-product", sizes: [8, 4096] }, { kernel: "affine", sizes: [10, 1000] }];
+const matrix = [
+  { kernel: "range-sum", sizes: [10, 1000] },
+  { kernel: "dot-product", sizes: [8, 4096] },
+  { kernel: "affine", sizes: [10, 1000] }, // One helper tail call, independent of size.
+  { kernel: "polynomial", sizes: [10, 1000] }, // No function calls: neutral control.
+];
 const profiles = [];
 for (const profile of ["debug", "release"]) {
   const cases = [];
