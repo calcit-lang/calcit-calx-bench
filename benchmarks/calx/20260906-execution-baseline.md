@@ -2,7 +2,7 @@
 
 ## 中文
 
-[原始报告](2026-09-06-execution-baseline-0.4.0.json) SHA-256：
+[原始报告](20260906-execution-baseline-0.4.0.json) SHA-256：
 `84d51113e2ea094f39c7a0c012d754bcb208bec7b2bd3e89eefd8fb85f4e5dfb`。
 clean harness `c3a0ae73c93774a3bcf75350b66dc37339966996`，clean Calcit
 `82a2b0e87051c4d3125a95804b76637e26d7ecf2`（0.13.75），registry `calx_vm 0.4.0`。

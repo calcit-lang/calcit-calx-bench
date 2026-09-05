@@ -21,6 +21,11 @@ cargo run --manifest-path runner/Cargo.toml --locked --release -- \
 clean revisions、正式 VM 包身份、工具链、环境、fixture/lockfile/binary SHA-256。
 脚本只接受 pins 中的已发布 registry VM，拒绝将 local/git override 冒充正式版本基线。
 
+入库仅限支撑设计判断的代表性基线/对照，并附 Markdown 结论、复现信息和原始文件哈希。
+日常 smoke、调试和重复运行保留在忽略的 `target/` 或 CI artifacts，不默认提交。
+大型 profiler 资产优先使用持久的外部归档并记录链接/哈希；入库的 raw JSON 必须标记为
+generated 并隐藏文本 diff。GitHub 仍可能把生成文件行数计入 PR 总量。
+
 - pure 窗口不包含编译、VM 实例化或输入编码，但包含 `run_values` 的 reset、
   参数消费与结果替换；并非单条 ReturnCall 的排他计时。
 - boundary 窗口额外包含 Calcit→Calx 编码（buffer copy）和结果解码；Calcit 输入事先构建。
@@ -47,6 +52,12 @@ one hundred timing calls and a separate hundred allocation calls. The four
 are never overwritten. Provenance includes clean revisions, published registry VM
 identity, commands, host/toolchain, and fixture/lockfile/binary hashes. Local/git
 overrides are rejected for this published baseline.
+
+Commit only representative decision-supporting baselines/comparisons with Markdown
+findings, reproduction details and raw-file hashes. Routine smoke, diagnostics and
+repeat runs stay in ignored `target/` or CI artifacts. Prefer durable external
+archives with links/hashes for large profiler assets. Committed raw JSON must be
+marked generated with text diffs disabled; GitHub may still count its lines in PR totals.
 
 Pure execution excludes compilation, VM instantiation and encoding, but includes
 run reset and consumed arguments/results. Boundary-inclusive execution adds encoding

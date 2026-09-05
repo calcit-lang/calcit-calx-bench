@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { integerFromEnvironment } from "./bench-calx-settings.mjs";
+import { validExecutionIdentity } from "./profile-calx-execution-identity.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const run = (command, args, cwd = root) => execFileSync(command, args, {
@@ -53,9 +54,7 @@ for (const profile of ["debug", "release"]) {
     const rawSamples = [];
     for (let sample = 0; sample < samples; sample += 1) {
       const report = JSON.parse(run(artifact.executable, args));
-      if (report.schema !== "calcit-calx-execution-profile/1" || report.correctness !== true
-        || report.environment.calcitGitCommit !== calcit.commit || report.environment.calcitGitDirty
-        || report.environment.calxVmVersion !== vms[0].version || report.environment.profile !== profile) {
+      if (!validExecutionIdentity(report, calcit.commit, vms[0].version, profile)) {
         throw new Error(`invalid profile identity or correctness: ${profile}/${kernel}/${size}`);
       }
       rawSamples.push(report);
