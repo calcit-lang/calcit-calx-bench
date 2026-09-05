@@ -1,7 +1,7 @@
-/** Compare names, versions, registry sources, features and edges. All local paths
- * normalize to "path"; the caller separately validates checkout provenance. */
-export function dependencyGraph(metadata) {
-  const names = new Map(metadata.packages.map((p) => [p.id, `${p.name}@${p.version}:${p.source ?? "path"}`]));
+/** Ignore only the explicitly selected VM path; preserve every other source ID. */
+export function dependencyGraph(metadata, selectedVmId) {
+  const names = new Map(metadata.packages.map((p) => [p.id,
+    `${p.name}@${p.version}:${p.source ?? (p.id === selectedVmId ? "path" : p.id)}`]));
   return metadata.resolve.nodes.map((node) => ({
     package: names.get(node.id),
     features: [...node.features].sort(),
@@ -10,6 +10,12 @@ export function dependencyGraph(metadata) {
       kinds: dep.dep_kinds.map((kind) => `${kind.kind ?? "normal"}:${kind.target ?? "all"}`).sort(),
     })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))),
   })).sort((a, b) => a.package.localeCompare(b.package));
+}
+
+export function requireDistinctVariants(paths, identities) {
+  if (paths[0] === paths[1] || identities[0].commit === identities[1].commit) {
+    throw new Error("comparison requires two distinct VM checkout paths and revisions");
+  }
 }
 
 export function median(values) {

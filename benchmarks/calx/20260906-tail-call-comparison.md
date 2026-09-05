@@ -22,6 +22,10 @@ Release 下，range-sum/1000 的纯执行中位耗时减少 **34.5%**，dot-prod
 - [原始 JSON](20260906-tail-call-comparison.json)：566294 bytes，SHA-256
   `5295d299f80a141dced689df0de842594eaee4d439edcf82b6b55ba30f01e3ba`。
 
+Review 后加强了输入防护：仅忽略选定 VM 的路径，其他本地依赖保留完整身份；拒绝
+同一路径/commit。已对本次保留的 stage 重新解析两端 metadata，更严格的依赖图校验
+仍通过。原始 JSON 保留生成时的图格式和 provenance，不回写历史数据或重新挑选样本。
+
 ```sh
 CARGO_NET_OFFLINE=true CALX_COMPARE_OUTPUT=target/calx-bench/tail-call-comparison-final.json \
   node scripts/compare-calx-execution.mjs /path/to/clean-vm-before /path/to/clean-vm-after
@@ -84,6 +88,10 @@ are experimental revisions, not replacements for formal dependency versions.
 All four source checkouts were clean. The provenance list and reproduction command
 above identify the exact harness, pinned Calcit, VM variants, machine, toolchain and
 raw report hash. The dependency versions, features and edges match across variants.
+Review subsequently tightened local-source identity checks and rejected identical
+VM paths/commits. Re-resolving both variants in the retained stage passes the stricter
+graph comparison. The original JSON keeps its generation-time graph format and
+provenance; neither historical bytes nor sample selection is rewritten.
 Offline reproduction requires cached dependencies. All binaries were built before
 sampling, copied and hashed. Seven fresh-process pairs alternate variant order per
 case, with twenty warmups and one hundred calls in each separate timing/counting

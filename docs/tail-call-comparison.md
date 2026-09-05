@@ -12,11 +12,13 @@ git submodule update --init --checkout
 node scripts/compare-calx-execution.mjs /path/to/clean-vm-before /path/to/clean-vm-after
 ```
 
-两个 VM checkout、harness、固定 Calcit submodule 均须 clean。脚本把 runner、fixtures 和
+两个 VM checkout、harness、固定 Calcit submodule 均须 clean；VM 的真实路径与 commit
+必须分别不同。脚本把 runner、fixtures 和
 toolchain 配置复制到忽略的 `target/` 临时目录，在其中应用 Cargo path override；正式
 manifest、lockfile、pins 保持有效。两端均标为 `unreleased`，manifest 的 0.4.0
 不能代表已发布的 revision。Cargo metadata 必须解析到指定 VM；依赖版本、feature 和边
-必须一致，才允许测量。临时产物保留以便排错，可在不使用后自行清理。
+必须一致，且只忽略指定 VM 的本地路径，其他本地依赖保留路径身份，才允许测量。
+临时产物保留以便排错，可在不使用后自行清理。
 
 默认 debug/release，各有 range-sum 10/1000、dot-product 8/4096、affine 10/1000、polynomial 10/1000。
 affine 只有一次 helper 尾调；polynomial 不包含函数调用，才是无尾调对照。
@@ -46,6 +48,8 @@ The script copies runner/fixtures/toolchain configuration to ignored temporary
 storage and applies a Cargo path override there. Both VM revisions are explicitly
 unreleased; manifest version 0.4.0 is not their published identity. Metadata must
 resolve the requested checkout, with equal dependency versions, features and edges.
+Only the selected VM path is normalized; other local dependency paths retain identity.
+Equal canonical VM paths or equal commits are rejected before building.
 Temporary artifacts remain for diagnosis. Formal manifests, locks and pins stay intact.
 
 Defaults produce 224 reports: two build profiles, eight cases, seven paired fresh

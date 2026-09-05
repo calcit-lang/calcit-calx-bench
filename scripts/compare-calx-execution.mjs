@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { integerFromEnvironment } from "./bench-calx-settings.mjs";
 import { validExecutionIdentity } from "./profile-calx-execution-identity.mjs";
-import { dependencyGraph, summarize } from "./compare-calx-execution-checks.mjs";
+import { dependencyGraph, requireDistinctVariants, summarize } from "./compare-calx-execution-checks.mjs";
 import { commandOutput } from "./profile-calx-execution-process.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -24,6 +24,7 @@ const vmPaths = [realpathSync(beforePath), realpathSync(afterPath)];
 const calcitRoot = realpathSync(path.join(root, "vendor/calcit"));
 const sourceRoots = [root, calcitRoot, ...vmPaths];
 const identities = sourceRoots.map(identity);
+requireDistinctVariants(vmPaths, identities.slice(2));
 if (identities.some((item) => item.dirty)) throw new Error("comparison requires clean harness, Calcit and both VM checkouts");
 const output = path.resolve(root, process.env.CALX_COMPARE_OUTPUT ?? "target/calx-bench/tail-call-comparison.json");
 if (existsSync(output)) throw new Error(`refusing to overwrite ${output}`);
@@ -57,7 +58,7 @@ for (let variant = 0; variant < 2; variant += 1) {
   if (vms.length !== 1 || vms[0].source !== null || realpathSync(path.dirname(vms[0].manifest_path)) !== vmPaths[variant]) {
     throw new Error("Cargo did not resolve exactly the requested local VM");
   }
-  const graph = dependencyGraph(metadata);
+  const graph = dependencyGraph(metadata, vms[0].id);
   if (variant === 0) baselineGraph = graph;
   else if (JSON.stringify(graph) !== JSON.stringify(baselineGraph)) throw new Error("dependency graph differs beyond VM path; comparison is confounded");
   const label = variant === 0 ? "before" : "after";
