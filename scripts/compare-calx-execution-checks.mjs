@@ -1,4 +1,5 @@
-/** Compare resolved dependency identities and edges, ignoring only the chosen VM path. */
+/** Compare names, versions, registry sources, features and edges. All local paths
+ * normalize to "path"; the caller separately validates checkout provenance. */
 export function dependencyGraph(metadata) {
   const names = new Map(metadata.packages.map((p) => [p.id, `${p.name}@${p.version}:${p.source ?? "path"}`]));
   return metadata.resolve.nodes.map((node) => ({

@@ -46,6 +46,10 @@ timing 关闭分配计数。先完成所有构建，再交替 before/after 顺�
 | polynomial / 10 | 90 ± 1 | 90 ± 1 | 0.0% | -2.2% | 0 → 0 |
 | polynomial / 1000 | 89 ± 1 | 90 ± 2 | +1.1% | -0.8% | 0 → 0 |
 
+表中的 alloc/call 是 `allocationCalls / measuredIterations`；下文的 realloc/call
+是独立计数 `reallocationCalls / measuredIterations`，没有计入表中的 alloc。
+因此“零 alloc”本身不意味着“零 realloc”。
+
 range-sum/10 的波动较大，不能把其百分比当作稳定承诺。affine 有一次 helper 尾调，
 并非旧基线文档所称的无尾调对照；其纯执行仍有 1 次 realloc/call，两端相同。
 含复制边界的 after allocation/call 分别为 range-sum 1、dot-product 3、affine 1、
@@ -87,7 +91,10 @@ window. Two profiles and eight cases produce 224 raw reports. Timing disables co
 
 The table reports release per-call nanoseconds as median ± MAD, not confidence
 intervals. Its columns are workload, before, after, pure-execution change,
-copy-boundary-plus-execution change, and pure allocations per call. Changes compare
+copy-boundary-plus-execution change, and pure allocations per call. The latter is
+`allocationCalls / measuredIterations`; reallocations use the separate
+`reallocationCalls` counter and are not included in that table column. Zero
+allocations alone do not imply zero reallocations. Changes compare
 the two medians. Range-sum/1000 takes **34.5% less time** and dot-product/4096 takes
 **20.1% less time**, with zero measured pure allocation/reallocation calls after the
 change. Polynomial, the no-call control, remains near 90 ns. The small range-sum case
