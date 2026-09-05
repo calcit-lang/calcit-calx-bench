@@ -33,6 +33,9 @@ The full benchmark is `yarn bench`. Reports are written under `target/calx-bench
 reviewed immutable measurements may then be added under `benchmarks/calx/`. Ratios and
 crossover points are informational and never become machine-specific correctness gates.
 
+For separate execution allocation windows and published-VM baseline provenance, see
+[Execution allocation profile](docs/execution-profile.md).
+
 The standalone acceptance and Calcit core cutover are tracked by
 [calcit#558](https://github.com/calcit-lang/calcit/issues/558) and
 [calcit#559](https://github.com/calcit-lang/calcit/issues/559). Dual-platform CI and
@@ -59,6 +62,8 @@ standalone 验收与 Calcit core 切换由 [calcit#558](https://github.com/calci
 和 [calcit#559](https://github.com/calcit-lang/calcit/issues/559) 追踪。固定 adapter revision 上的
 双平台 CI 与 clean-state 182-sample scalar matrix 已通过，因此 core 已删除重复 runner、调度、
 报告和产品 contract；Calx lowering、cache/runtime 语义与 correctness 仍保留在 core。
+
+执行分配窗口、已发布 VM 基线与复现方法见[执行分配 profile](docs/execution-profile.md)。
 
 追踪关系：[calcit#547](https://github.com/calcit-lang/calcit/issues/547)、
 [calcit#558](https://github.com/calcit-lang/calcit/issues/558)、

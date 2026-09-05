@@ -32,3 +32,4 @@ jobs:
       - run: yarn check-pins
       - run: cargo test --manifest-path runner/Cargo.toml
       - run: CALX_BENCH_QUICK=1 CALX_BENCH_SAMPLES=1 yarn bench
+      - run: CALX_PROFILE_SAMPLES=1 CALX_PROFILE_ITERATIONS=2 CALX_PROFILE_WARMUP=1 node scripts/profile-calx-execution.mjs
