@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
@@ -6,11 +5,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { integerFromEnvironment } from "./bench-calx-settings.mjs";
 import { validExecutionIdentity } from "./profile-calx-execution-identity.mjs";
+import { commandOutput } from "./profile-calx-execution-process.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const run = (command, args, cwd = root) => execFileSync(command, args, {
-  cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024,
-}).trim();
+const run = (command, args, cwd = root) => commandOutput(command, args, cwd);
 const hash = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
 const identity = (cwd) => ({
   commit: run("git", ["rev-parse", "HEAD"], cwd),

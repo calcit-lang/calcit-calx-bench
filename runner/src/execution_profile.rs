@@ -136,6 +136,12 @@ mod tests {
     }
 
     #[test]
+    fn phase_accepts_a_zero_allocation_measurement() {
+        let report = phase(&1, 2, &1, Ok).expect("allocation-free phase remains valid");
+        assert_eq!(report.allocations, AllocationReport::default());
+    }
+
+    #[test]
     fn error_closes_the_allocation_window() {
         let mut calls = 0;
         let error = phase(&1, 1, &1, |_| {
@@ -174,7 +180,6 @@ mod tests {
             assert_eq!(report.measured_iterations, 2);
             assert!(report.correctness);
             assert!(report.pure_execution.total_ns > 0);
-            assert!(report.with_boundary.allocations.allocation_calls > 0);
         }
     }
 }
