@@ -22,7 +22,9 @@ adapter edition、fixture/lockfile/binary 哈希均在 JSON。debug/release 各 
 
 两种 profile 中 tail kernel 的分配次数均随循环 size 线性增长，支持继续评估 VM #60 的
 locals 容量复用。计数不能证明分配占用了多少执行时间；收益需候选前后对照。
-affine 无 size 相关增长，作为无尾调对照保留，不省略其 realloc。
+affine 无 size 相关增长，不省略其 realloc。
+更正：affine 源码包含一次对 affine-helper 的尾调用，不能作为无尾调对照；
+本表原始计数保持不变，无尾调对照应使用 polynomial。计数本身不能代替调用结构检查。
 该报告没有 stack sampling（不能用于 inclusive-stack 归因），requested bytes 不是
 retained heap；没有声称新版 VM 或 Calcit 端到端提升。测量边界见[方法文档](../../docs/execution-profile.md)。
 
@@ -39,6 +41,9 @@ Tail-kernel allocations scale linearly with loop size in both profiles, supporti
 evaluation of locals capacity reuse in VM #60. Counts alone do not establish what
 fraction of execution time allocations consume; speedups require a candidate
 comparison. Affine has no size-related growth but still performs one pure-pass
-reallocation per call. No stack sampling or inclusive-stack attribution is present;
+reallocation per call in this archived report. Correction: its source has one tail
+call to affine-helper, so it is not a no-tail-call control. Raw counts remain intact;
+polynomial supplies the no-call control. Counts do not establish call structure.
+No stack sampling or inclusive-stack attribution is present;
 requested bytes are not retained heap. No new-VM or downstream end-to-end gain is
 claimed. Archived bytes and schema IDs are preserved.

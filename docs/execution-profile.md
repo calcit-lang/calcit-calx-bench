@@ -35,7 +35,8 @@ generated 并隐藏文本 diff。GitHub 仍可能把生成文件行数计入 PR 
   每次 kernel 内的尾调数量与 size 相关，不能把两种 iteration 混用。
 - requested bytes 包含成功 realloc 的新大小，不是 live/retained heap；窗口可能释放
   在窗口前分配的参数。没有做 stack sampling，也不能当作 inclusive-stack 归因证据。
-- range-sum/dot-product 的 size 梯度用于发现线性分配；affine 是无尾调对照。
+- range-sum/dot-product 的 size 梯度用于发现线性分配；affine 包含一次 helper 尾调，
+  可作为不随 size 增长的样本。需要无尾调对照时使用 polynomial（见 tail-call-comparison.md）。
   VM 内 retained locals capacity 需要 VM correctness 测试另行验证。本报告不是端到端性能承诺。
 
 ## English
@@ -70,6 +71,7 @@ Counts are raw window totals, not per-tail-call values. Divide by measured itera
 for per-kernel-call counts; tail iterations depend on the workload size. Requested
 bytes include successful realloc new sizes and are not live/retained heap. Windows
 may deallocate arguments allocated earlier. No stack sampling or exclusive/inclusive
-stack attribution is provided. Size gradients and the non-tail affine control identify
-allocation scaling; VM tests must separately establish retained-capacity behavior.
+stack attribution is provided. Size gradients identify allocation scaling; affine
+contains one helper tail call independent of size. Polynomial supplies the no-call
+control in the comparison suite. VM tests separately establish retained-capacity behavior.
 These reports do not establish downstream end-to-end speedups.
