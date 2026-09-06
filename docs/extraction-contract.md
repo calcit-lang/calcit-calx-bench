@@ -9,7 +9,8 @@ language correctness gate, or production dependency. This phase documents the
 contract and bootstrap inventory. The standalone repository has now been
 created and owns the runner that consumes the revision-pinned session adapter.
 The adapter originally landed on Calcit `main` as `42c2f339`; this harness now pins
-Calcit `721f322` (0.13.77) with the typed F64Buffer adapter path and the exact
+Calcit `4839866` (0.13.77) with the sequential and indirect-gather typed F64Buffer
+adapter paths and the exact
 published crates.io `calx_vm` 0.5.0. The adapter edition remains unchanged.
 Standalone CI, the complete 182-sample scalar reproduction, and the
 core duplicate-asset cutover have completed. The adapter and backend semantics
@@ -19,8 +20,8 @@ remain in core; benchmark product policy must not move back there.
 追踪的第一阶段边界。该 harness 是**实验性 benchmark/research 产品**，不是 Calcit
 runtime 功能、语言正确性 gate 或生产依赖。本阶段只记录契约和 bootstrap inventory，
 独立仓库现已创建，并拥有消费 revision-pinned session adapter 的 runner；adapter 已作为
-`42c2f339` 合入 Calcit `main`；本仓库现固定到包含 typed F64Buffer adapter 路径的 Calcit
-`721f322`（0.13.77）与 crates.io 正式版本 `calx_vm` 0.5.0，精确版本依赖，adapter edition 不变。
+`42c2f339` 合入 Calcit `main`；本仓库现固定到包含顺序与间接 gather typed F64Buffer adapter 路径的
+Calcit `4839866`（0.13.77）与 crates.io 正式版本 `calx_vm` 0.5.0，精确版本依赖，adapter edition 不变。
 standalone CI、完整 182-sample
 scalar reproduction 与 core 重复资产清理均已完成。adapter 和 backend 语义保留在 core，
 benchmark 产品策略不得迁回 core。
@@ -64,18 +65,18 @@ harness/schema 变化，每次测量必须固定精确的 Calcit 与 `calx-vm` r
 | `scripts/bench-calx-settings.mjs` and test | migrated | standalone harness | experiment-setting policy |
 | `docs/run/calx-benchmark.md` | methodology migrated; core retains only a short discovery link | standalone harness | measurement and comparison policy |
 | `benchmarks/calx/README.md` and versioned JSON | migrated without rewriting raw data | standalone harness | archive and bounded conclusions |
-| `tests/fixtures/calx/scalar-kernels.cirru` and `f64-buffer-kernel.cirru` | copy with source revision and keep originals | both, core authoritative | benchmark workloads also serve differential correctness |
+| `tests/fixtures/calx/scalar-kernels.cirru`, `f64-buffer-kernel.cirru`, and `f64-buffer-gather-kernel.cirru` | copy with source revision and keep originals | both, core authoritative | benchmark workloads also serve differential correctness |
 | `src/codegen/calx.rs`, `src/codegen/calx/lowering.rs` | stay | Calcit core | backend semantics and typed boundary |
 | `src/program/tests.rs` Calx tests | stay | Calcit core | eligibility, golden, trap, fallback, and differential correctness |
 | all `tests/fixtures/calx/*.golden.txt`, `fallback.cirru`, `typed-imports.cirru` | stay | Calcit core | language/backend correctness, not benchmark policy |
 | `Cargo.toml` binary entry and `package.json` benchmark scripts/check | removed by #559 | standalone harness | standalone reproduction completed before cutover |
 
-The scalar and F64Buffer source fixtures are deliberately the only shared/copy-with-provenance
-assets. The standalone copies record their originating Calcit commit and must not
+The scalar, sequential F64Buffer, and indirect F64Buffer gather source fixtures are deliberately
+the only shared/copy-with-provenance assets. The standalone copies record their originating Calcit commit and must not
 become the correctness source of truth. Golden and fallback fixtures do not
 move.
 
-scalar 与 F64Buffer source fixtures 是唯一明确允许 copy-with-provenance 的共享资产。独立仓库副本必须记录
+scalar、顺序 F64Buffer 与间接 F64Buffer gather source fixtures 是唯一明确允许 copy-with-provenance 的共享资产。独立仓库副本必须记录
 来源 Calcit commit，不能成为 correctness source of truth；golden 与 fallback fixtures 不迁移。
 
 ## Frozen report and process contract / 固化的报告与进程契约

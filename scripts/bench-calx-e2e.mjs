@@ -38,6 +38,7 @@ const fullMatrix = [
   { kernel: "polynomial", sizes: [10, 1000] },
   { kernel: "bounded-simulation", sizes: [10, 100, 1000] },
   { kernel: "dot-product", sizes: [8, 64, 512, 4096] },
+  { kernel: "gather-sum", sizes: [8, 64, 512, 4096] },
 ];
 const matrix = quick
   ? fullMatrix.map(({ kernel, sizes }) => ({ kernel, sizes: [sizes[0]] }))

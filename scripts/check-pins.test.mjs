@@ -23,7 +23,7 @@ test("the repository pins exact Calcit and calx-vm revisions", () => {
   assert.equal(pins.runner.ownership, "standalone-revision-pinned-runner");
   assert.equal(pins.runner.adapterStatus, "active-internal-revision-pinned");
   assert.equal(pins.runner.adapterEdition, "calcit-calx-benchmark-session/1");
-  assert.deepEqual(Object.keys(pins.workloads).sort(), ["f64Buffer", "scalar"]);
+  assert.deepEqual(Object.keys(pins.workloads).sort(), ["f64Buffer", "f64BufferGather", "scalar"]);
   for (const workload of Object.values(pins.workloads)) {
     assert.match(workload.sha256, /^[0-9a-f]{64}$/u);
   }
