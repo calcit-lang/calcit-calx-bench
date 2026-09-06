@@ -9,7 +9,7 @@
 
 这是历史 revision 对照，不是当前正式 VM 版本的比较。复现该归档时，在单独 checkout
 使用报告记录的 harness `1791ab300c03ceaa8cefb87d877ebee171627369`，再初始化它固定的
-Calcit submodule。当前 Calcit 精确依赖 0.5.0，不能直接接受这两个 manifest 仍为 0.4.0
+Calcit submodule。当前 Calcit 精确依赖 `calx_vm` 0.5.0，不能直接接受这两个 manifest 仍为 0.4.0
 的实验 VM；不要为复现旧报告放宽当前正式依赖或改写历史 JSON。
 
 ```sh
@@ -52,7 +52,7 @@ Invoke the command with clean VM checkouts and an initialized pinned submodule.
 This is a historical revision comparison, not a comparison of current published VM
 releases. Reproduce the archive in a separate checkout at its recorded harness revision
 `1791ab300c03ceaa8cefb87d877ebee171627369`, then initialize that revision's pinned
-Calcit submodule. Current Calcit requires exactly 0.5.0 and cannot accept these two
+Calcit submodule. Current Calcit requires exactly `calx_vm` 0.5.0 and cannot accept these two
 experimental VMs whose manifests still declare 0.4.0. Do not relax the current formal
 dependency or rewrite historical JSON to reproduce old evidence.
 
