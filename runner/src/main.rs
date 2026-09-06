@@ -436,6 +436,7 @@ fn number_fn_schema(arity: usize) -> Arc<CalcitTypeAnnotation> {
     )
 }
 
+/// Select the source namespace that owns a named benchmark kernel.
 fn fixture_namespace(kernel: &str) -> &'static str {
     match kernel {
         "dot-product" => F64_BUFFER_FIXTURE_NAMESPACE,
@@ -444,6 +445,7 @@ fn fixture_namespace(kernel: &str) -> &'static str {
     }
 }
 
+/// Map a kernel to the stable workload identity stored in reports.
 fn workload_name(kernel: &str) -> &'static str {
     match kernel {
         "dot-product" => "typed-f64-buffer-read",
@@ -452,6 +454,7 @@ fn workload_name(kernel: &str) -> &'static str {
     }
 }
 
+/// Return whether a kernel crosses the strict typed F64Buffer boundary.
 fn is_f64_buffer_kernel(kernel: &str) -> bool {
     matches!(kernel, "dot-product" | "gather-sum")
 }
@@ -1238,6 +1241,15 @@ mod tests {
             panic!("gather-sum second argument must be the index buffer");
         };
         assert_eq!(indices.as_ref(), &[0.0, 5.0, 2.0, 7.0, 4.0, 1.0, 6.0, 4.0]);
+        {
+            let session = prepare_session("gather-sum").expect("prepare gather-sum session");
+            assert_eq!(
+                session
+                    .run_calcit_lookup(&arguments)
+                    .expect("run native gather-sum baseline"),
+                Calcit::Number(37.0)
+            );
+        }
 
         let report = measure(&Args {
             kernel: "gather-sum".to_owned(),

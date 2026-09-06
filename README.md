@@ -24,7 +24,7 @@ Buffer reports separate input construction, copy-from-Calcit boundary encoding,
 reused-VM execution, and repeated boundary-plus-execution cost. Shared/adopted
 ownership is explicitly unmeasured because the pinned adapter does not expose it.
 
-Current pins consume Calcit 0.13.77 at merged revision `4839866` and the exact
+Current pins consume a post-0.13.77 Calcit `main` revision `4839866` and the exact
 published crates.io VM 0.5.0. The full revision is intentional for the internal adapter;
 `pins.json` and `runner/Cargo.lock` are authoritative. The adapter edition and existing
 scalar/sequential-buffer fixture hashes are unchanged; the gather fixture and its hash are
@@ -71,7 +71,7 @@ dot product 和间接 gather；gather 先读取确定性 index stream，再进�
 无需新增 VM opcode 或修改 typed-buffer ABI。两者分别测量输入构造、copy-from-Calcit 边界编码、复用 VM 执行，以及每次复制后执行的
 总成本。固定 adapter 尚未暴露 shared/adopted ownership，因此报告明确标为未测，而不作推断。
 
-当前固定 Calcit 0.13.77 的已合并 revision `4839866`，消费 crates.io 已发布的精确 VM 0.5.0。
+当前固定 Calcit 0.13.77 tag 之后的已合并 `main` revision `4839866`，消费 crates.io 已发布的精确 VM 0.5.0。
 内部 adapter 有意固定完整 revision；以 `pins.json` 和 `runner/Cargo.lock` 为准。
 adapter edition 与已有 scalar/顺序 buffer fixture 哈希不变；本次新增并固定 gather fixture 及其哈希。
 完成版本消费本身不代表已证明端到端加速。
