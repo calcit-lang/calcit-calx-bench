@@ -2,7 +2,7 @@
   "schema": "calcit-calx-bench-pins/2",
   "calcit": {
     "repository": "https://github.com/calcit-lang/calcit",
-    "commit": "721f322a2a7bc1c88d5fc048a1c10c2fa02fc63f"
+    "commit": "48398669dc60b126d57f8c24f49cc54c65cc5e34"
   },
   "calxVm": {
     "source": "runner/Cargo.lock",
@@ -18,6 +18,11 @@
       "path": "fixtures/f64-buffer-kernel.cirru",
       "authoritativePath": "vendor/calcit/tests/fixtures/calx/f64-buffer-kernel.cirru",
       "sha256": "ec2ae79f248386169c4c6f43d43b8dedee9f51e62432554d1be905e75f8dbf9a"
+    },
+    "f64BufferGather": {
+      "path": "fixtures/f64-buffer-gather-kernel.cirru",
+      "authoritativePath": "vendor/calcit/tests/fixtures/calx/f64-buffer-gather-kernel.cirru",
+      "sha256": "81c6aabcb52da39b52d677959a20af142d22479c122eebbe20b7c6bb8a0e7a00"
     }
   },
   "runner": {

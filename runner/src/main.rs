@@ -24,6 +24,7 @@ mod execution_profile;
 
 const SCALAR_FIXTURE_NAMESPACE: &str = "bench.calx-kernels";
 const F64_BUFFER_FIXTURE_NAMESPACE: &str = "bench.calx-f64-buffer";
+const F64_BUFFER_GATHER_FIXTURE_NAMESPACE: &str = "bench.calx-f64-gather";
 const CARGO_LOCK: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/Cargo.lock"));
 
 struct ProfileAllocator;
@@ -112,7 +113,7 @@ static GLOBAL_ALLOCATOR: ProfileAllocator = ProfileAllocator;
 #[derive(Debug, FromArgs)]
 /// measure one source-backed Calcit-to-Calx kernel
 struct Args {
-    /// kernel name: range-sum, fibonacci, affine, polynomial, bounded-simulation, or dot-product
+    /// kernel name: range-sum, fibonacci, affine, polynomial, bounded-simulation, dot-product, or gather-sum
     #[argh(option, default = "String::from(\"range-sum\")")]
     kernel: String,
 
@@ -435,30 +436,50 @@ fn number_fn_schema(arity: usize) -> Arc<CalcitTypeAnnotation> {
     )
 }
 
+/// Select the source namespace that owns a named benchmark kernel.
 fn fixture_namespace(kernel: &str) -> &'static str {
-    if kernel == "dot-product" {
-        F64_BUFFER_FIXTURE_NAMESPACE
-    } else {
-        SCALAR_FIXTURE_NAMESPACE
+    match kernel {
+        "dot-product" => F64_BUFFER_FIXTURE_NAMESPACE,
+        "gather-sum" => F64_BUFFER_GATHER_FIXTURE_NAMESPACE,
+        _ => SCALAR_FIXTURE_NAMESPACE,
     }
 }
 
+/// Map a kernel to the stable workload identity stored in reports.
 fn workload_name(kernel: &str) -> &'static str {
-    if kernel == "dot-product" {
-        "typed-f64-buffer-read"
-    } else {
-        "scalar-only"
+    match kernel {
+        "dot-product" => "typed-f64-buffer-read",
+        "gather-sum" => "typed-f64-buffer-indirect-gather-read",
+        _ => "scalar-only",
     }
+}
+
+/// Return whether a kernel crosses the strict typed F64Buffer boundary.
+fn is_f64_buffer_kernel(kernel: &str) -> bool {
+    matches!(kernel, "dot-product" | "gather-sum")
 }
 
 /// Declare the source-backed corpus and fixed schemas for one benchmark family.
 fn benchmark_corpus(kernel: &str) -> Result<CalxBenchmarkCorpus, String> {
-    if kernel == "dot-product" {
-        return CalxBenchmarkCorpus::new(
-            F64_BUFFER_FIXTURE_NAMESPACE,
-            include_str!("../../fixtures/f64-buffer-kernel.cirru"),
-            [CalxBenchmarkDefinition::new(
+    if is_f64_buffer_kernel(kernel) {
+        let (namespace, source, definition) = match kernel {
+            "dot-product" => (
+                F64_BUFFER_FIXTURE_NAMESPACE,
+                include_str!("../../fixtures/f64-buffer-kernel.cirru"),
                 "dot-product",
+            ),
+            "gather-sum" => (
+                F64_BUFFER_GATHER_FIXTURE_NAMESPACE,
+                include_str!("../../fixtures/f64-buffer-gather-kernel.cirru"),
+                "gather-sum",
+            ),
+            _ => unreachable!("typed-buffer kernel predicate and corpus must agree"),
+        };
+        return CalxBenchmarkCorpus::new(
+            namespace,
+            source,
+            [CalxBenchmarkDefinition::new(
+                definition,
                 fn_schema(
                     vec![
                         Arc::new(CalcitTypeAnnotation::F64Buffer),
@@ -524,6 +545,26 @@ fn kernel_arguments(kernel: &str, size: u32) -> Result<Vec<Calcit>, String> {
                 Calcit::F64Buffer(Arc::from(left)),
                 Calcit::F64Buffer(Arc::from(right)),
                 Calcit::Number(f64::from(size.saturating_sub(1))),
+                Calcit::Number(0.0),
+            ])
+        }
+        "gather-sum" => {
+            if size == 0 {
+                return Err("gather-sum size must be greater than zero".to_owned());
+            }
+            let values = (0..size)
+                .map(|index| f64::from(index) + 1.0)
+                .collect::<Vec<_>>();
+            let indices = (0..size)
+                .map(|index| {
+                    let gathered = index.wrapping_mul(5).wrapping_add(index / 7) % size;
+                    f64::from(gathered)
+                })
+                .collect::<Vec<_>>();
+            Ok(vec![
+                Calcit::F64Buffer(Arc::from(values)),
+                Calcit::F64Buffer(Arc::from(indices)),
+                Calcit::Number(n),
                 Calcit::Number(0.0),
             ])
         }
@@ -666,7 +707,7 @@ fn measure_compile_profile(args: &Args) -> Result<CompileProfileReport, String> 
         schema: "calcit-calx-compile-profile/1",
         environment: environment_report()?,
         kernel: args.kernel.clone(),
-        workload: if args.kernel == "dot-product" {
+        workload: if is_f64_buffer_kernel(&args.kernel) {
             "complete-uncached-typed-f64-buffer-compilation"
         } else {
             "complete-uncached-scalar-compilation"
@@ -812,7 +853,7 @@ fn measure_cache_profile(args: &Args) -> Result<CacheProfileReport, String> {
         schema: "calcit-calx-cache-profile/1",
         environment: environment_report()?,
         kernel: args.kernel.clone(),
-        workload: if args.kernel == "dot-product" {
+        workload: if is_f64_buffer_kernel(&args.kernel) {
             "revision-validated-typed-f64-buffer-cache-hit-plus-fresh-vm"
         } else {
             "revision-validated-cache-hit-plus-fresh-vm"
@@ -1185,6 +1226,51 @@ mod tests {
         assert_eq!(report.input.f64_buffer_count, 2);
         assert_eq!(report.input.f64_buffer_elements, 8);
         assert_eq!(report.input.f64_buffer_bytes, 64);
+        assert_eq!(report.input.boundary_ownership, "copy-from-calcit");
+        assert!(report.runtime.boundary_arguments_total_ns > 0);
+        assert!(report.runtime.hot_with_boundary_total_ns > 0);
+        assert!(report.correctness);
+    }
+
+    #[test]
+    fn indirect_f64_buffer_gather_is_deterministic_and_correct() {
+        assert!(kernel_arguments("gather-sum", 0).is_err());
+        let arguments = kernel_arguments("gather-sum", 8).expect("gather-sum arguments");
+        assert_eq!(f64_buffer_input_shape(&arguments), (2, 16, 128));
+        let Calcit::F64Buffer(indices) = &arguments[1] else {
+            panic!("gather-sum second argument must be the index buffer");
+        };
+        assert_eq!(indices.as_ref(), &[0.0, 5.0, 2.0, 7.0, 4.0, 1.0, 6.0, 4.0]);
+        {
+            let session = prepare_session("gather-sum").expect("prepare gather-sum session");
+            assert_eq!(
+                session
+                    .run_calcit_lookup(&arguments)
+                    .expect("run native gather-sum baseline"),
+                Calcit::Number(37.0)
+            );
+        }
+
+        let report = measure(&Args {
+            kernel: "gather-sum".to_owned(),
+            size: 8,
+            vm_warmup: 1,
+            hot_iterations: 2,
+            compile_profile_iterations: 0,
+            compile_profile_warmup: 0,
+            compile_profile_stage_iterations: 1,
+            compile_profile_allocation_iterations: 1,
+            cache_profile_iterations: 0,
+            cache_profile_warmup: 0,
+            execution_profile_iterations: 0,
+        })
+        .expect("measure indirect F64Buffer gather");
+
+        assert_eq!(report.schema, "calcit-calx-benchmark/3");
+        assert_eq!(report.workload, "typed-f64-buffer-indirect-gather-read");
+        assert_eq!(report.input.f64_buffer_count, 2);
+        assert_eq!(report.input.f64_buffer_elements, 16);
+        assert_eq!(report.input.f64_buffer_bytes, 128);
         assert_eq!(report.input.boundary_ownership, "copy-from-calcit");
         assert!(report.runtime.boundary_arguments_total_ns > 0);
         assert!(report.runtime.hot_with_boundary_total_ns > 0);

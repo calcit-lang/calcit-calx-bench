@@ -33,6 +33,7 @@ if (vms.length !== 1 || vms[0].source !== "registry+https://github.com/rust-lang
 const matrix = [
   { kernel: "range-sum", sizes: [10, 100, 1000] },
   { kernel: "dot-product", sizes: [8, 64, 512, 4096] },
+  { kernel: "gather-sum", sizes: [8, 64, 512, 4096] },
   { kernel: "affine", sizes: [10, 1000] },
 ];
 const profiles = [];

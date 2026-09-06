@@ -16,15 +16,19 @@ compile, all Rust/Node tests, pin checks, debug/release quick smoke, and the ful
 before measurement results are accepted.
 GitHub Actions runs that correctness-gated smoke on both Ubuntu and macOS. Reports
 record the exact workload revision and every pinned source-fixture SHA-256. The
-matrix covers the original scalar corpus plus a typed `F64Buffer` dot product.
+matrix covers the original scalar corpus, a sequential typed `F64Buffer` dot product,
+and an indirect `F64Buffer` gather. The gather reads a deterministic index stream before
+performing checked data-dependent value reads, exercising a different access pattern
+without adding VM opcodes or changing the typed-buffer ABI.
 Buffer reports separate input construction, copy-from-Calcit boundary encoding,
 reused-VM execution, and repeated boundary-plus-execution cost. Shared/adopted
 ownership is explicitly unmeasured because the pinned adapter does not expose it.
 
-Current pins consume Calcit 0.13.77 at merged revision `721f322` and the exact
+Current pins consume a post-0.13.77 Calcit `main` revision `4839866` and the exact
 published crates.io VM 0.5.0. The full revision is intentional for the internal adapter;
-`pins.json` and `runner/Cargo.lock` are authoritative. The adapter edition and workload
-fixture hashes are unchanged. This adoption does not by itself establish an end-to-end speedup.
+`pins.json` and `runner/Cargo.lock` are authoritative. The adapter edition and existing
+scalar/sequential-buffer fixture hashes are unchanged; the gather fixture and its hash are
+newly pinned. This adoption does not by itself establish an end-to-end speedup.
 
 ```bash
 git submodule update --init --checkout
@@ -62,13 +66,15 @@ preprocess/runtime 函数。adapter 不承诺 semver 兼容；每次修改 Calci
 通过 runner compile、全部 Rust/Node tests、pin checks、debug/release quick smoke 与 full matrix，
 才能接受新的测量结果。
 GitHub Actions 在 Ubuntu 与 macOS 上运行该 correctness-gated smoke；报告显式记录 workload
-revision 与每份固定 source fixture 的 SHA-256。矩阵在原 scalar corpus 外加入 typed `F64Buffer`
-dot product，并分别测量输入构造、copy-from-Calcit 边界编码、复用 VM 执行，以及每次复制后执行的
+revision 与每份固定 source fixture 的 SHA-256。矩阵在原 scalar corpus 外加入顺序 typed `F64Buffer`
+dot product 和间接 gather；gather 先读取确定性 index stream，再进行 checked 数据依赖读取，
+无需新增 VM opcode 或修改 typed-buffer ABI。两者分别测量输入构造、copy-from-Calcit 边界编码、复用 VM 执行，以及每次复制后执行的
 总成本。固定 adapter 尚未暴露 shared/adopted ownership，因此报告明确标为未测，而不作推断。
 
-当前固定 Calcit 0.13.77 的已合并 revision `721f322`，消费 crates.io 已发布的精确 VM 0.5.0。
+当前固定 Calcit 0.13.77 tag 之后的已合并 `main` revision `4839866`，消费 crates.io 已发布的精确 VM 0.5.0。
 内部 adapter 有意固定完整 revision；以 `pins.json` 和 `runner/Cargo.lock` 为准。
-adapter edition 与 workload fixture 哈希不变；完成版本消费本身不代表已证明端到端加速。
+adapter edition 与已有 scalar/顺序 buffer fixture 哈希不变；本次新增并固定 gather fixture 及其哈希。
+完成版本消费本身不代表已证明端到端加速。
 
 standalone 验收与 Calcit core 切换由 [calcit#558](https://github.com/calcit-lang/calcit/issues/558)
 和 [calcit#559](https://github.com/calcit-lang/calcit/issues/559) 追踪。固定 adapter revision 上的

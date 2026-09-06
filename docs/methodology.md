@@ -8,17 +8,19 @@ Calx 编译、严格边界、VM 建立和执行全部计入后，哪些调用模
 
 ### 当前范围
 
-source-backed corpus 包含六个 kernel：
+source-backed corpus 包含七个 kernel：
 
 - `range-sum`：线性 tail recur 与 accumulation；
 - `fibonacci`：direct recursion 与分支；
 - `affine`：fixed-arity helper call graph；
 - `polynomial`：固定深度数值表达式；
-- `bounded-simulation`：随输入规模增长的数值状态迭代。
-- `dot-product`：两个 typed `F64Buffer` 的只读线性访问与累加。
+- `bounded-simulation`：随输入规模增长的数值状态迭代；
+- `dot-product`：两个 typed `F64Buffer` 的只读线性访问与累加；
+- `gather-sum`：一个 typed `F64Buffer` 数据区和一个确定性、含重复索引的 typed `F64Buffer`
+  index stream，用 checked 间接读取完成累加。
 
-所有 case 都先执行同一 typed preprocessed source 的 Calcit/Calx 差分检查。`dot-product` 使用真实
-Calcit/Calx `F64Buffer` 边界；报告分别保留输入构造、`copy-from-calcit` 编码、预编码后复用 VM 的纯执行，
+所有 case 都先执行同一 typed preprocessed source 的 Calcit/Calx 差分检查。`dot-product` 与
+`gather-sum` 使用真实 Calcit/Calx `F64Buffer` 边界；报告分别保留输入构造、`copy-from-calcit` 编码、预编码后复用 VM 的纯执行，
 以及每次重新复制后执行并解码的耗时。当前 adapter 没有 shared/adopted ownership，因此这两条路径明确
 保持未测。Calcit persistent List/Map/Set 不会冒充 typed buffer。WASM 是非阻塞参照，本阶段不制造无法稳定
 复现的对比数字。
@@ -134,17 +136,19 @@ it defines no noise-sensitive absolute threshold for ordinary CI.
 
 ### Current scope
 
-The source-backed corpus contains six kernels:
+The source-backed corpus contains seven kernels:
 
 - `range-sum`: linear tail recursion and accumulation;
 - `fibonacci`: direct recursion and branching;
 - `affine`: a fixed-arity helper call graph;
 - `polynomial`: a fixed-depth numeric expression;
-- `bounded-simulation`: numeric state iteration that grows with input size.
-- `dot-product`: read-only linear access and accumulation over two typed `F64Buffer` values.
+- `bounded-simulation`: numeric state iteration that grows with input size;
+- `dot-product`: read-only linear access and accumulation over two typed `F64Buffer` values;
+- `gather-sum`: checked indirect reads from a typed `F64Buffer` through a deterministic typed
+  `F64Buffer` index stream containing repeated indices, followed by accumulation.
 
 Every case first checks Calcit/Calx differential correctness from the same typed preprocessed source. `dot-product`
-uses the real Calcit/Calx `F64Buffer` boundary. Reports preserve input construction, `copy-from-calcit` encoding,
+and `gather-sum` use the real Calcit/Calx `F64Buffer` boundary. Reports preserve input construction, `copy-from-calcit` encoding,
 pure reused-VM execution with pre-encoded values, and repeated encode-plus-execute-plus-decode cost. Shared and
 adopted ownership remain explicitly unmeasured because the current adapter does not expose those paths. Calcit
 persistent List/Map/Set values are never presented as typed buffers. WASM remains a non-blocking reference.
